@@ -27,7 +27,8 @@
 6. Vad är en funktion och varför använder programmerare dem? Förklara skillnaden mellan en funktion med returvärde och en som inte returnerar något.
 
     Ett återanvändbart kodblock som man kan anropa om och om igen med olika input för att utföra en åtgärd istf. att skriva ny kod hela tiden.
-    En funktion med returvärde ger ett resultat tillbaka när funktionen anropas. Utan returvärde gör funktionen sin uppgift, t.ex. skriver ut något, men ger inget tillbaka. 
+    En funktion med returvärde ger ett resultat tillbaka när funktionen anropas. Utan returvärde gör funktionen sin uppgift, t.ex. skriver ut något, 
+    men ger inget tillbaka. 
 
 7. Förklara begreppet parameter jämfört med argument Python.
 
@@ -44,7 +45,9 @@
     Valideringsdata används för att utvärdera och justera modellen via tuning av hyperparametrar. 
     Testdata används endast på slutet och då för att uppskatta modellens generaliseringsförmåga på nya data efter alla justeringar.
 
-10. Julia delar upp sin data i träning och test. På träningsdatan så tränar hon tre modeller; ”Linjär Regression”, ”Lasso regression” och en ”Random Forest modell”. Hur skall hon välja vilken av de tre modellerna hon skall fortsätta använda när hon inte skapat ett explicit ”valideringsdataset”?
+10. Julia delar upp sin data i träning och test. På träningsdatan så tränar hon tre modeller; ”Linjär Regression”, ”Lasso regression” 
+och en ”Random Forest modell”. Hur skall hon välja vilken av de tre modellerna hon skall fortsätta använda när hon inte skapat ett 
+explicit ”valideringsdataset”?
 
     Genom att använda korsvalidering, t.ex. en 5-fold CV, kan hon både träna och validera modellen på den del hon valt som träningsdata. 
     Därefter kan hon välja önskad modell. Eventuellt kan hon med hjälp av GridsearchCV också trimma sina hyperparametrar.
@@ -52,18 +55,18 @@
 11. Vad är ”regressionsproblem? Kan du ge några exempel på modeller som används och potentiella tillämpningsområden?
 
     Här målet ett tal, t.ex. ett pris, en temperatur eller något liknande. Linjär regression, Lasso, Random Forest Regressor, etc. 
-    Ett exempel är ju den prisprediktor vi gjorde i kunskapskontrollen. Ett annat kan vara bostadspriserna vi såg på upptaktsträffen i Möldnal, försäljningsprognoser, etc.
+    Ett exempel är ju den prisprediktor vi gjorde i kunskapskontrollen. Ett annat kan vara bostadspriserna vi såg på upptaktsträffen 
+    i Möldnal, försäljningsprognoser, etc.
 
 12. Hur kan du tolka RMSE och vad används det till.
 
     Root Mean Squared Error. Det är alltså kvadratroten ur medelvärdet av kvadrerade fel. 
-    Detta kan ses som det genomsnittliga "avståndet" mellan modellens predikterade data och faktiska värden, och är ett sätt att jämföra regressionsmodeller. 
-    I sådana jämförelser är ett lägre RMSE bättre.  
+    Detta kan ses som det genomsnittliga "avståndet" mellan modellens predikterade data och faktiska värden, och är ett sätt att 
+    jämföra regressionsmodeller. I sådana jämförelser är ett lägre RMSE bättre.  
 
 13. Vad är ”klassificeringsproblem? Kan du ge några exempel på modeller som används och potentiella tillämpningsområden?
 
-    Problem där målet är en kategori (t.ex. churn, spam-mail, etc.) 
-    Logistisk regression, beslutsträd, random forest.
+    Problem där målet är en kategori (t.ex. churn, spam-mail, etc.). Exempel på modeller är logistisk regression, beslutsträd, random forest.
     De här modellerna används för att bedöma om en kund ska churna, om ett mail är spam eller inte, om en patient är sjuk eller frisk, etc.
 
 14. Vad är en ”Confusion Matrix”?
@@ -79,21 +82,24 @@
 
 16. Förklara (gärna med ett exempel): Ordinal encoding, one-hot encoding, dummy variable encoding.
     
-    Ordinal encoding är när data är rankade (1,2,3 eller hög, medel, låg). 
-    One-hot encoding skapar en binär kolumn per kategori, t.ex. röd, grön, blå. Röda får 1 i den kolumnen och noll i övriga, etc. 
+    Ordinal encoding är när data är naturligt rankade (hög = 1,medel = 2, låg = 3, etc.). 
+    One-hot encoding skapar en binär kolumn per kategori, t.ex. färg_röd, färg_grön, färg_blå. Röda får 1 i den kolumnen och noll i övriga, etc. 
     Dummy-encoding är som One-hot, men här droppar man en kolumn per variabel och låter den kolumnen vara referenskategori.
 
-17. Göran påstår att datan antingen är ”ordinal” eller ”nominal”. Julia säger att detta måste tolkas. Hon ger ett exempel med att färger såsom {röd, grön, blå} generellt sett inte har någon inbördes ordning (nominal) men om du har en röd skjorta så är du vackrast på festen (ordinal) – vem har rätt?
+17. Göran påstår att datan antingen är ”ordinal” eller ”nominal”. Julia säger att detta måste tolkas. Hon ger ett exempel med att 
+färger såsom {röd, grön, blå} generellt sett inte har någon inbördes ordning (nominal) men om du har en röd skjorta så är du 
+vackrast på festen (ordinal) – vem har rätt?
     
     Göran har ju rätt i grunden eftersom färger inte har någon naturlig ordning. 
-    När Julia säger att röd är den finaste färgen så skapar hon ju dock en form av skala och då kan man säga att hon har rätt. 
-    Det blir en tolkningsfråga vem som har rätt.
+    När Julia säger att röd är den finaste färgen så skapar hon ju dock en form av skala och då kan man säga att hon har rätt (hon rangordnar färgerna). 
+    Samma data kan alltså ses som ordinal eller nominal beroende på hur man gör sin analys.
 
-18. Vad är skillnaden mellan parametrar och hyperparametrar i en maskininlärningsmodell? Ge ett exempel på varje och förklara varför de inte kan optimeras på samma sätt.
+18. Vad är skillnaden mellan parametrar och hyperparametrar i en maskininlärningsmodell? Ge ett exempel på varje och förklara 
+varför de inte kan optimeras på samma sätt.
 
     * Parametrarna är de värden som modellen lär sig av data, t.ex. vikter i en linjär regression. 
     * Hyperparametrarna är det vi anger för att styra *hur* modellen ska lära sig. T.ex. antal träd i en Random Forest eller C och epsilon i en SVR. 
-    * Parametrarna optimeras inuti en given modell med en träningsalgoritm på på träningsdata. Det är "rattar" som man vrider på för att få så litet fel som möjligt på träningsdata.
+    * Parametrarna optimeras inuti en given modell med en träningsalgoritm på träningsdata. Det är "rattar" som man vrider på för att få så litet fel som möjligt på träningsdata.
     * Hyperparametrarna optimeras genom jämföring av olika inställningar på valideringsdata eller med korsvalidering för att undvika överanpassning mot en enskild träningskörning. 
 
 19. Förklara skillnaden mellan overfitting och underfitting i en maskininlärningsmodell. Beskriv även hur man kan upptäcka respektive åtgärda dem.
@@ -102,5 +108,5 @@
     Detta kan man åtgärda t.ex. genom att förenkla modellen eller stärka regulariseringen så att modellen har lite större fel på träningsdata, men blir bättre på ny data. 
 
     Underfitting är tvärtom när modellen är för regulariserad/enkel och helt enkelt inte fångar de mönster som finns i dataunderlaget. Det här är något som 
-    man får lösa genom att välja en bättre modell, minska regulariseringen eller förbättra sitt feature set. 
-     
+    man får lösa genom att välja en bättre modell, minska regulariseringen eller förbättra sitt feature set.
+
