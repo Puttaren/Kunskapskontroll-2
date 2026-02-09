@@ -1,0 +1,41 @@
+1. Har något varit utmanande i kursen/kunskapskontrollerna? 
+    Ja, det har varit en utmanande kurs i det att mycket har varit nytt
+    och att man behövt hålla reda på många detaljer. 
+    
+    Emellanåt har man 
+    blivit frestad att "titta under huven" på de olika funktionerna och 
+    modellerna. 
+    
+    Det som gett mig mycket har varit scikit-learns utmärkta
+    dokumentation på https://scikit-learn.org/ som ett utmärkt komplement
+    till boken och föreläsningarna. 
+
+2. Vilket betyg anser du att du ska ha?
+    Jag har haft VG i alla kurser hittills och även om den här kursen är 
+    den första där jag faktiskt känt lite motstånd (det har varit mycket
+    läsning i boken, dokumentation online och genomgång av föreläsningar
+    flera gånger) så känner jag mig väl rustad att ta mig an uppgifter av
+    den här typen framöver. 
+    
+    Jag har nått kursens alla läranderesultat, jag har en fördjupad förmåga
+    att tillämpa Machine Learning och statistiska modeller samt har i båda
+    de kunskapskontroller vi haft uppvisat en förmåga att utveckla en 
+    effektiv lösning för BI-relaterade system i relevant programmeringsspråk. 
+
+3. Något du vill lyfta fram till Terese?
+    Det har som sagt varit en ganska tuff kurs, men jag känner att vi har 
+    fått närma oss ämnet varsamt och i ett bra tempo, med gott om tid för
+    egen reflektion och möjlighet att diskutera i grupp samt ställa frågor.
+
+    Kursen har givit mig inspiration till att själv försöka ta fram en bra 
+    modell för att prediktera returer i min hustrus företag där de säljer
+    proteser och hjälpmedel för amputerade. 
+    
+    Om underlaget räcker till är oklart, men baserat på patienternas vikt, 
+    aktivitetsnivå, användningsmiljö och infästning av protesen ska det gå 
+    att hitta mönster som gör att man kan prioritera produktionen för de 
+    patienter som har lägst risk för returer. Just produktionen är idag en
+    flaskhals och det är därför önskvärt att veta vilka produkter som ska
+    hamna först i kön. 
+
+    
