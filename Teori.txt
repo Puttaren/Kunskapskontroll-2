@@ -1,49 +1,106 @@
 1. All data i Python representeras av objekt. I Python består varje objekt av tre grundläggande delar. Vilka är dessa delar? Beskriv varje del kort.
-    Nu har jag lämnat tillbaka Python-boken (lånad), men om jag inte missminner mig så är det identitet, typ och värde. 
-    Identiteten är adressen i minnet, typen är vad objektet är (int, list, class, etc.) och värdet är innehållet i objektet. 
+
+    Identitet, typ och värde. Identiteten är adressen i minnet, typen är vad objektet är (int, list, class, etc.) och värdet är innehållet i objektet. 
 
 2. Förklara skillnaden mellan mutabla och immutabla objekt i Python och ge exempel på varje.
+
     Mutabla och immutabla är objekt som kan förändras respektive inte kan förändras när de har skapats.
     Exempel på mutabla objekt kan vara en list eller dict där man fyller på/tar bort/ändrar innehållet.
-    Exempel på ett immutabelt objekt är sådana som inte ändras utan "pånyttskapas" när de ändras. En int, float eller string t.ex. 
+    Exempel på ett immutabelt objekt är sådana som inte ändras utan "pånyttskapas" som ett nytt objekt när de ändras. En int, float eller string t.ex. 
 
 3. Vad är ett set i Python? Vilka egenskaper särskiljer det från listor? Ge ett praktiskt exempel där det är mer effektivt att använda ett set än en lista.
+
     Set är en samling element utan ordning, där varje element är unikt inom setet. 
-    Avsaknad av dubbletter är ett exempel på där set är mer effektiv än en lista. 
+    Ett set har mycket högre prestanda t.ex. om man vill kolla om ett värde redan finns. 
 
 4. Förklara vad en loop är och ge exempel på när den används.
-    En loop är en programkonstruktion där koden bearbetas om och om igen tills en break nås eller ett förutbestämt villkor uppfylls. 
-    Exempel: loopa igenom en lista och utför en åtgärd på varje element i listan tills loopen når sitt naturliga slut.
+
+    En loop är en programkonstruktion där koden bearbetas en gång per element i en samling eller tills ett förutbestämt villkor uppfylls (alt. en "break" nås). 
+    Exempel: 
+        for x in lista:
+    går igenom elementen i listan och utför en operation på dem tills loopen når sitt naturliga slut när inga element finns kvar.
 
 5. Vad är en klass och hur skiljer sig en instans från själva klassen?
-    En klass är en definition av en viss sorts objekt. Instansen är en "körning" av klassen, det färdiga objekt som skapas av klassen.
+
+    En klass är en definition av en viss sorts objekt. Instansen är ett konkret objekt som skapas när klassen instansieras.
 
 6. Vad är en funktion och varför använder programmerare dem? Förklara skillnaden mellan en funktion med returvärde och en som inte returnerar något.
-    Ett kodblock som man kan anropa om och om igen med olika input för att utföra en åtgärd istf. att skriva ny kod hela tiden.
-    En funktion med returvärde ger ett resultat tillbaka när funktionen anropas. Utan returvärde gör funktionen sin uppgift, men ger inget tillbaka. 
+
+    Ett återanvändbart kodblock som man kan anropa om och om igen med olika input för att utföra en åtgärd istf. att skriva ny kod hela tiden.
+    En funktion med returvärde ger ett resultat tillbaka när funktionen anropas. Utan returvärde gör funktionen sin uppgift, t.ex. skriver ut något, men ger inget tillbaka. 
 
 7. Förklara begreppet parameter jämfört med argument Python.
+
     Parameter är en funktions "platshållare" för de värden som ska in där. Argumenten är de faktiska värden som sedan anges vid funktionsanropet. 
 
 8. Titta på följande video om R: R Programming. Vad är skillnaden mellan R och Python?
-    R är ett språk som jag faktiskt kollade själv (av eget intresse) innan utbildningen började förra året. 
-    Det är mer specifikt för statistik och dataanalys än Python som ju har ett brett användningsområde och kan 
-    användas till nästan vad som helst. Via bibliotek som numpy och pandas kan det även göra allt som R gör bra.
+
+    R är mer specifikt för statistik och dataanalys än Python som är ett bredare programmeringsspråk och kan 
+    användas till nästan vad som helst. Via bibliotek som t.ex. numpy och pandas kan Python även göra allt som R gör bra.
 
 9. Kalle ska bygga en ML-modell och delar upp sin data i ”Träning”, ”Validering” och ”Test”, vad används respektive del för?
+
     Träningsdata används för att lära upp modellen. 
     Valideringsdata används för att utvärdera och justera modellen via tuning av hyperparametrar. 
-    Testdata används endast på slutet och då för att mäta hur väl modellen levererar på nya data efter alla justeringar.
+    Testdata används endast på slutet och då för att uppskatta modellens generaliseringsförmåga på nya data efter alla justeringar.
 
 10. Julia delar upp sin data i träning och test. På träningsdatan så tränar hon tre modeller; ”Linjär Regression”, ”Lasso regression” och en ”Random Forest modell”. Hur skall hon välja vilken av de tre modellerna hon skall fortsätta använda när hon inte skapat ett explicit ”valideringsdataset”?
-    Genom att använda korsvalidering, t.ex. en 5-fold CV, kan hon både träna och validera modellen på den del hon valt som träningsdata. Genom     
+
+    Genom att använda korsvalidering, t.ex. en 5-fold CV, kan hon både träna och validera modellen på den del hon valt som träningsdata. 
+    Därefter kan hon välja önskad modell. Eventuellt kan hon med hjälp av GridsearchCV också trimma sina hyperparametrar.
 
 11. Vad är ”regressionsproblem? Kan du ge några exempel på modeller som används och potentiella tillämpningsområden?
+
+    Här målet ett tal, t.ex. ett pris, en temperatur eller något liknande. Linjär regression, Lasso, Random Forest Regressor, etc. 
+    Ett exempel är ju den prisprediktor vi gjorde i kunskapskontrollen. Ett annat kan vara bostadspriserna vi såg på upptaktsträffen i Möldnal, försäljningsprognoser, etc.
+
 12. Hur kan du tolka RMSE och vad används det till.
-13. Vad är ”klassificieringsproblem? Kan du ge några exempel på modeller som används och potentiella tillämpningsområden?
+
+    Root Mean Squared Error. Det är alltså kvadratroten ur medelvärdet av kvadrerade fel. 
+    Detta kan ses som det genomsnittliga "avståndet" mellan modellens predikterade data och faktiska värden, och är ett sätt att jämföra regressionsmodeller. 
+    I sådana jämförelser är ett lägre RMSE bättre.  
+
+13. Vad är ”klassificeringsproblem? Kan du ge några exempel på modeller som används och potentiella tillämpningsområden?
+
+    Problem där målet är en kategori (t.ex. churn, spam-mail, etc.) 
+    Logistisk regression, beslutsträd, random forest.
+    De här modellerna används för att bedöma om en kund ska churna, om ett mail är spam eller inte, om en patient är sjuk eller frisk, etc.
+
 14. Vad är en ”Confusion Matrix”?
+
+    En tabell som jämför modellens prediktioner med faktiska värden. 
+    I binär klassificering visar den True Positive, True Negative, False Positive och False Negative. 
+    Dessa fyra värden används sedan för accuracy, precision, recall och F1 (olika sätt att mäta hur väl modellerna fungerar).
+
 15. Vad är K-means modellen för något? Ge ett exempel på vad det kan tillämpas på.
+
+    En klustringsmodell för unsupervised learning där data delas in i K kluster baserat på hur lika de är varandra.
+    Används för att hitta naturliga grupperingar i data, t.ex. kunders köpbeteende eller pixelfärger i en bild.  
+
 16. Förklara (gärna med ett exempel): Ordinal encoding, one-hot encoding, dummy variable encoding.
+    
+    Ordinal encoding är när data är rankade (1,2,3 eller hög, medel, låg). 
+    One-hot encoding skapar en binär kolumn per kategori, t.ex. röd, grön, blå. Röda får 1 i den kolumnen och noll i övriga, etc. 
+    Dummy-encoding är som One-hot, men här droppar man en kolumn per variabel och låter den kolumnen vara referenskategori.
+
 17. Göran påstår att datan antingen är ”ordinal” eller ”nominal”. Julia säger att detta måste tolkas. Hon ger ett exempel med att färger såsom {röd, grön, blå} generellt sett inte har någon inbördes ordning (nominal) men om du har en röd skjorta så är du vackrast på festen (ordinal) – vem har rätt?
+    
+    Göran har ju rätt i grunden eftersom färger inte har någon naturlig ordning. 
+    När Julia säger att röd är den finaste färgen så skapar hon ju dock en form av skala och då kan man säga att hon har rätt. 
+    Det blir en tolkningsfråga vem som har rätt.
+
 18. Vad är skillnaden mellan parametrar och hyperparametrar i en maskininlärningsmodell? Ge ett exempel på varje och förklara varför de inte kan optimeras på samma sätt.
+
+    * Parametrarna är de värden som modellen lär sig av data, t.ex. vikter i en linjär regression. 
+    * Hyperparametrarna är det vi anger för att styra *hur* modellen ska lära sig. T.ex. antal träd i en Random Forest eller C och epsilon i en SVR. 
+    * Parametrarna optimeras inuti en given modell med en träningsalgoritm på på träningsdata. Det är "rattar" som man vrider på för att få så litet fel som möjligt på träningsdata.
+    * Hyperparametrarna optimeras genom jämföring av olika inställningar på valideringsdata eller med korsvalidering för att undvika överanpassning mot en enskild träningskörning. 
+
 19. Förklara skillnaden mellan overfitting och underfitting i en maskininlärningsmodell. Beskriv även hur man kan upptäcka respektive åtgärda dem.
+
+    Overfitting är när modellen är för nära träningsdata och därför inte är generaliserad nog för valideringsdata/testdata/faktiska data.
+    Detta kan man åtgärda t.ex. genom att förenkla modellen eller stärka regulariseringen så att modellen har lite större fel på träningsdata, men blir bättre på ny data. 
+
+    Underfitting är tvärtom när modellen är för regulariserad/enkel och helt enkelt inte fångar de mönster som finns i dataunderlaget. Det här är något som 
+    man får lösa genom att välja en bättre modell, minska regulariseringen eller förbättra sitt feature set. 
+     
