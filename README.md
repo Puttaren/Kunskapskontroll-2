@@ -1,3 +1,8 @@
 Filer för kunskapskontroll 2.
 
-Här saknas .venv och joblib-modellen (för stora för att laddas upp här).
+Här saknas .venv och joblib-modellerna (för stora för att laddas upp här).
+
+I den sprudlande experimentlustan tog det lite för lång tid att upptäcka att MNIST-bilderna faktiskt är svarta med vita siffror. 
+
+När jag kom fram till det och lyckades få bilderna att beskäras rätt och vikta dem så de hamnade rätt i rutan fungerade det *beautifully*!!!
+
