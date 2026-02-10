@@ -77,7 +77,8 @@ explicit ”valideringsdataset”?
 
 15. Vad är K-means modellen för något? Ge ett exempel på vad det kan tillämpas på.
 
-    En klustringsmodell för unsupervised learning där data delas in i K kluster baserat på hur lika de är varandra.
+    Den vanligast förekommande klustringsmodellen. Den är snabb och skalbar, och lämplig för stora dataset. 
+    Bygger på lokalisering av en centroid för varje kluster.  för unsupervised learning där data delas in i K kluster baserat på hur lika de är varandra.
     Används för att hitta naturliga grupperingar i data, t.ex. kunders köpbeteende eller pixelfärger i en bild.  
 
 16. Förklara (gärna med ett exempel): Ordinal encoding, one-hot encoding, dummy variable encoding.
