@@ -1,6 +1,6 @@
 Filer för kunskapskontroll 2.
 
-Här saknas .venv och joblib-modellerna (för stora för att laddas upp här).
+Projektet är fullständigt reproducerbart genom den bifogade requirements.txt, vilken inkluderar alla nödvändiga beroenden för både modellering, bildbehandling (Pillow/Scipy) och visualisering.
 
 I den sprudlande experimentlustan tog det lite för lång tid att upptäcka att MNIST-bilderna faktiskt är svarta med vita siffror. 
 
