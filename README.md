@@ -11,7 +11,7 @@ Filer för kunskapskontroll 2.
     hyperparametrar och skapande av joblib-modellen.
 5.  preprocess.py - bildbehandling av egna bilder som ska predikteras.
 6.  Test av preprocessor.ipynb - experimentering med olika bilder för att se hanteringen.
-7.  ??? <Streamlit-appen> 
+7.  predict.py - Streamlit-appen för prediktering.
 8.  Det finns också tre joblib för körning, bara två av dem gick att ladda upp på Github 
     (Extra Trees-modellen med scaling blev över 800 MB stor)
 
@@ -19,6 +19,11 @@ Kommentarer:
 *   Projektet är fullständigt reproducerbart genom den bifogade requirements.txt, 
     vilken inkluderar alla nödvändiga beroenden för både modellering, bildbehandling 
     (Pillow/Scipy) och visualisering. 
+
+*   Jag frågade om jag behövde gå tillbaka och jobba med dimensionsreducering, men
+    fick ju svaret att jag *inte* behövde det så därför är det inte med. Jag har
+    experimenterat lite med det och det ger snabbare hantering, men min modell och
+    prediktering fungerar ju så det får vara.
 
 *   I den sprudlande experimentlustan tog det lite för lång tid att upptäcka att 
     MNIST-bilderna faktiskt är svarta med vita siffror. När jag kom fram till det 
