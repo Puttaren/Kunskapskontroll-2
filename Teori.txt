@@ -1,53 +1,53 @@
-1. All data i Python representeras av objekt. I Python består varje objekt av tre grundläggande delar. Vilka är dessa delar? Beskriv varje del kort.
+1.  All data i Python representeras av objekt. I Python består varje objekt av tre grundläggande delar. Vilka är dessa delar? Beskriv varje del kort.
 
     Identitet, typ och värde. Identiteten är adressen i minnet, typen är vad objektet är (int, list, class, etc.) och värdet är innehållet i objektet. 
 
-2. Förklara skillnaden mellan mutabla och immutabla objekt i Python och ge exempel på varje.
+2.  Förklara skillnaden mellan mutabla och immutabla objekt i Python och ge exempel på varje.
 
     Mutabla och immutabla är objekt som kan förändras respektive inte kan förändras när de har skapats.
     Exempel på mutabla objekt kan vara en list eller dict där man fyller på/tar bort/ändrar innehållet.
     Exempel på ett immutabelt objekt är sådana som inte ändras utan "pånyttskapas" som ett nytt objekt när de ändras. En int, float eller string t.ex. 
 
-3. Vad är ett set i Python? Vilka egenskaper särskiljer det från listor? Ge ett praktiskt exempel där det är mer effektivt att använda ett set än en lista.
+3.  Vad är ett set i Python? Vilka egenskaper särskiljer det från listor? Ge ett praktiskt exempel där det är mer effektivt att använda ett set än en lista.
 
     Set är en samling element utan ordning, där varje element är unikt inom setet. 
     Ett set har mycket högre prestanda t.ex. om man vill kolla om ett värde redan finns. 
 
-4. Förklara vad en loop är och ge exempel på när den används.
+4.  Förklara vad en loop är och ge exempel på när den används.
 
     En loop är en programkonstruktion där koden bearbetas en gång per element i en samling eller tills ett förutbestämt villkor uppfylls (alt. en "break" nås). 
     Exempel: 
         for x in lista:
     går igenom elementen i listan och utför en operation på dem tills loopen når sitt naturliga slut när inga element finns kvar.
 
-5. Vad är en klass och hur skiljer sig en instans från själva klassen?
+5.  Vad är en klass och hur skiljer sig en instans från själva klassen?
 
     En klass är en definition av en viss sorts objekt. Instansen är ett konkret objekt som skapas när klassen instansieras.
 
-6. Vad är en funktion och varför använder programmerare dem? Förklara skillnaden mellan en funktion med returvärde och en som inte returnerar något.
+6.  Vad är en funktion och varför använder programmerare dem? Förklara skillnaden mellan en funktion med returvärde och en som inte returnerar något.
 
     Ett återanvändbart kodblock som man kan anropa om och om igen med olika input för att utföra en åtgärd istf. att skriva ny kod hela tiden.
     En funktion med returvärde ger ett resultat tillbaka när funktionen anropas. Utan returvärde gör funktionen sin uppgift, t.ex. skriver ut något, 
     men ger inget tillbaka. 
 
-7. Förklara begreppet parameter jämfört med argument Python.
+7.  Förklara begreppet parameter jämfört med argument Python.
 
     Parameter är en funktions "platshållare" för de värden som ska in där. Argumenten är de faktiska värden som sedan anges vid funktionsanropet. 
 
-8. Titta på följande video om R: R Programming. Vad är skillnaden mellan R och Python?
+8.  Titta på följande video om R: R Programming. Vad är skillnaden mellan R och Python?
 
     R är mer specifikt för statistik och dataanalys än Python som är ett bredare programmeringsspråk och kan 
     användas till nästan vad som helst. Via bibliotek som t.ex. numpy och pandas kan Python även göra allt som R gör bra.
 
-9. Kalle ska bygga en ML-modell och delar upp sin data i ”Träning”, ”Validering” och ”Test”, vad används respektive del för?
+9.  Kalle ska bygga en ML-modell och delar upp sin data i ”Träning”, ”Validering” och ”Test”, vad används respektive del för?
 
     Träningsdata används för att lära upp modellen. 
     Valideringsdata används för att utvärdera och justera modellen via tuning av hyperparametrar. 
     Testdata används endast på slutet och då för att uppskatta modellens generaliseringsförmåga på nya data efter alla justeringar.
 
 10. Julia delar upp sin data i träning och test. På träningsdatan så tränar hon tre modeller; ”Linjär Regression”, ”Lasso regression” 
-och en ”Random Forest modell”. Hur skall hon välja vilken av de tre modellerna hon skall fortsätta använda när hon inte skapat ett 
-explicit ”valideringsdataset”?
+    och en ”Random Forest modell”. Hur skall hon välja vilken av de tre modellerna hon skall fortsätta använda när hon inte skapat ett 
+    explicit ”valideringsdataset”?
 
     Genom att använda korsvalidering, t.ex. en 5-fold CV, kan hon både träna och validera modellen på den del hon valt som träningsdata. 
     Därefter kan hon välja önskad modell. Eventuellt kan hon med hjälp av GridsearchCV också trimma sina hyperparametrar.
@@ -88,15 +88,15 @@ explicit ”valideringsdataset”?
     Dummy-encoding är som One-hot, men här droppar man en kolumn per variabel och låter den kolumnen vara referenskategori.
 
 17. Göran påstår att datan antingen är ”ordinal” eller ”nominal”. Julia säger att detta måste tolkas. Hon ger ett exempel med att 
-färger såsom {röd, grön, blå} generellt sett inte har någon inbördes ordning (nominal) men om du har en röd skjorta så är du 
-vackrast på festen (ordinal) – vem har rätt?
+    färger såsom {röd, grön, blå} generellt sett inte har någon inbördes ordning (nominal) men om du har en röd skjorta så är du 
+    vackrast på festen (ordinal) – vem har rätt?
     
     Göran har ju rätt i grunden eftersom färger inte har någon naturlig ordning. 
     När Julia säger att röd är den finaste färgen så skapar hon ju dock en form av skala och då kan man säga att hon har rätt (hon rangordnar färgerna). 
-    Samma data kan alltså ses som ordinal eller nominal beroende på hur man gör sin analys.
+    Samma data kan alltså ses som ordinal eller nominal beroende på hur man gör sin analys. Eller som en klok föreläsare brukar säga, "Det beror på".
 
 18. Vad är skillnaden mellan parametrar och hyperparametrar i en maskininlärningsmodell? Ge ett exempel på varje och förklara 
-varför de inte kan optimeras på samma sätt.
+    varför de inte kan optimeras på samma sätt.
 
     * Parametrarna är de värden som modellen lär sig av data, t.ex. vikter i en linjär regression. 
     * Hyperparametrarna är det vi anger för att styra *hur* modellen ska lära sig. T.ex. antal träd i en Random Forest eller C och epsilon i en SVR. 
