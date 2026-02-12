@@ -9,6 +9,7 @@ Filer för kunskapskontroll 2.
 5. preprocess.py - bildbehandling av egna bilder som ska predikteras.
 6. Test av preprocessor.ipynb - experimentering med olika bilder för att se hanteringen.
 7. ??? <Streamlit-appen> 
+8. Det finns också tre joblib för körning, bara två av dem gick att ladda upp på Github (Extra Trees-modellen med scaling blev över 800 MB stor)
 
 Kommentarer:
 * Projektet är fullständigt reproducerbart genom den bifogade requirements.txt, vilken inkluderar alla nödvändiga beroenden för både modellering, bildbehandling (Pillow/Scipy) och visualisering. 

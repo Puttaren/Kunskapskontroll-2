@@ -15,7 +15,7 @@ def preprocess_image(path):
     arr = np.array(im)
     h, w = arr.shape
 
-    # --- NYTT: Begränsa sökytan till mitten för att undvika brus vid kanterna ---
+    # Begränsa sökytan till mitten för att undvika brus vid kanterna
     x_lo, x_hi = int(0.2 * w), int(0.8 * w)
     y_lo, y_hi = int(0.2 * h), int(0.8 * h)
 
@@ -30,7 +30,7 @@ def preprocess_image(path):
     if len(xs) == 0:
         im28 = im.resize((28, 28), Image.Resampling.LANCZOS)
     else:
-        # 3. Beskär (nu blir denna box mycket tajtare kring bara siffran)
+        # 3. Beskär tajtare runt siffran
         digit = im.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))
         
         # 4. Skala till 20x20 (MNIST-standard)
@@ -58,6 +58,10 @@ def preprocess_image(path):
     # 7. Suddighet för att efterlikna MNIST-estetik
     im28 = im28.filter(ImageFilter.GaussianBlur(radius=0.4))
 
-    # Returnera som array (1, 784)
-    X = np.array(im28).astype("float32").reshape(1, -1)
+    # 8. Returnera som array (1, 784),
+    # normaliserad genom delning med 255.0 till en float64 mellan 0 och 1. 
+    X = np.array(im28).astype("float64")
+    X = X/255.0
+    X = X.reshape(1, 784)
+
     return X, im28
