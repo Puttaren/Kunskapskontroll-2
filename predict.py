@@ -25,6 +25,11 @@ st.markdown("""
     
     /* Radiomeny med flikar */
     .stRadio [data-baseweb="radio"] { padding-right: 20px; }
+
+    /* Döljer krysset/radera-knappen helt för användaren */
+    div[data-testid="stFileUploaderDeleteBtn"] {
+        display: none;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -34,7 +39,7 @@ def load_model():
 
 model = load_model()
 
-# RUBRIKER
+# Rubriker
 st.title("MNIST-projekt")
 st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', unsafe_allow_html=True)
 
@@ -51,6 +56,9 @@ def perform_analysis(img_input):
 
 # Rita egen bild
 if mode == "✍️ Rita":
+    # Nollställ uppladdningsminnet vid växling
+    st.session_state.last_upload = None
+    
     col_canvas, col_machine = st.columns(2)
     
     with col_canvas:
@@ -86,26 +94,28 @@ if mode == "✍️ Rita":
         ax.set_yticks([])
         plt.tight_layout()
         st.pyplot(fig)
-    else:
-        # Se till att det är tomt vid start
-        pass
 
 # Uppladdning
 else:
     # Rensar gammalt ritminne så att vi får en tom sida
     st.session_state.last_draw = None 
     
-    uploaded_file = st.file_uploader("Välj bild", type=["jpg", "png"], label_visibility="collapsed")
+    uploaded_file = st.file_uploader("Välj bild (max 10MB)", type=["jpg", "png"], label_visibility="collapsed")
     
-    # Visningslogik i ett if-block
+    # Visningslogik med storlekskontroll och minnesfunktion
     if uploaded_file is not None:
         img_upload = Image.open(uploaded_file)
-        pred, conf, img_28, probs = perform_analysis(img_upload)
+        # Spara både analys och bild i session_state för persistens
+        st.session_state.last_upload = (perform_analysis(img_upload), img_upload)
+
+    # Låt bilden ligga kvar tills ny bild laddas upp/läget växlas
+    if "last_upload" in st.session_state and st.session_state.last_upload:
+        (pred, conf, img_28, probs), original_img = st.session_state.last_upload
         
         col_orig, col_mach_up = st.columns(2)
         with col_orig:
             st.caption("Original")
-            st.image(img_upload, width=280)
+            st.image(original_img, width=280)
         with col_mach_up:
             st.caption("Maskinens vy")
             st.image(img_28, width=280)
