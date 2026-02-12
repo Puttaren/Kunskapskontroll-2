@@ -1,24 +1,42 @@
-Filer för kunskapskontroll 2.
-–––––––––––––––––––––––––––––
+MNIST-projekt för kursen i Machine Learning
 
-** Filerna kan med fördel läsas/hanteras i följande ordning:
-1.  Teori.txt - svar på teorifrågorna. Kort och koncist som efterfrågats. 
-2.  MNIST-modellering - experiment.ipynb - EDA, allmän visualisering av data, 
-    diverse experiment och tester.
-3.  Titta på MNIST-bilder.ipynb - en tjuvtitt på bilder från MNIST-datasetet. 
-    Mycket upplysande!
-4.  MNIST-modellering - final - Här finns genomgången av olika modeller samt 
-    hyperparametrar och skapande av joblib-modellen.
-5.  preprocess.py - bildbehandling av egna bilder som ska predikteras.
-6.  Test av preprocessor.ipynb - experimentering med olika bilder för att se hanteringen.
-7.  predict.py - Streamlit-appen för prediktering.
-8.  Det finns också tre joblib för körning, bara två av dem gick att ladda upp på Github 
-    (Extra Trees-modellen med scaling blev över 800 MB stor)
+Appen är driftsatt och finns för körning här: https://puttaren-predict.streamlit.app/
+
+## 📂 Projektstruktur
+–––––––––––––––––––––
+
+### 🏠 Main
+* **[predict.py](predict.py)**: Själva Streamlit-applikationen med Live-funktionalitet.
+* **[preprocess.py](preprocess.py)**: Den centrala motorn för bildbehandling (ljusanalys, beskärning och tyngdpunkts-centrering).
+* **mnist_model_final_svc.joblib**: Den tränade SVC-modellen (98.1% accuracy).
+* **requirements.txt**: Alla nödvändiga bibliotek för att köra projektet.
+
+### 📓 [Notebooks/](Notebooks/)
+* **MNIST-modellering - final.ipynb**: Slutgiltig genomgång av modeller, hyperparametrar och export av joblib-filen.
+* **MNIST-modellering - experiment.ipynb**: EDA och tidiga tester med olika algoritmer (Random Forest, XGBoost m.fl.).
+* **Test av preprocessor.ipynb**: Visualisering av hur olika bilder transformeras av preprocessorn.
+* **Titta på MNIST-bilder.ipynb**: Utforskning av originaldatasetet.
+
+### 📝 [Teori och självutvärdering/](Teori och självutvärdering/)
+* **Teori.txt**: Svar på teorifrågorna (kort och koncist).
+* **Självutvärdering.txt**: Mina reflektioner.
+
+### 🎤 [Presentation/](Presentation/)
+* **Manus.docx**: Manus för presentationen.
+
+### 📦 [Storage/](Storage/)
+* Innehåller gamla modeller, backuper och testbilder.
+* *Notera: Den stora Extra Trees-modellen (800MB) finns ej på GitHub p.g.a. storleksgränser.*
+
+## 🛠 Teknik i urval
+* **Intelligent Bakgrundsanalys**: Detekterar skuggor i foton och anpassar bildbehandlingen därefter.
+* **Tyngdpunkts-centrering**: Flyttar siffrans massa till koordinat 14.0 för att matcha MNIST-standard.
+* **SVC (RBF Kernel)**: En optimerad modell som når hög precision på några millisekunder.
 
 Kommentarer:
-*   Projektet är fullständigt reproducerbart genom den bifogade requirements.txt, 
-    vilken inkluderar alla nödvändiga beroenden för både modellering, bildbehandling 
-    (Pillow/Scipy) och visualisering. 
+*   Projektet är fullständigt reproducerbart genom installation av paket enligt 
+    requirements.txt, vilken inkluderar alla nödvändiga beroenden för modellering, 
+    bildbehandling och visualisering. 
 
 *   Jag frågade om jag behövde gå tillbaka och jobba med dimensionsreducering, men
     fick ju svaret att jag *inte* behövde det så därför är det inte med. Jag har
