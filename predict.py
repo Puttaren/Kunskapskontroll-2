@@ -6,17 +6,26 @@ import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 import preprocess 
 
-# --- 1. KONFIGURATION & CSS ---
+# --- 1. KONFIGURATION & CSS (KIRURGISK PRECISION) ---
 st.set_page_config(page_title="MNIST Projekt", layout="centered")
 
-# CSS för att minska luft mellan rubriker och element
 st.markdown("""
     <style>
     .block-container { padding-top: 1rem; }
     h1 { margin-bottom: 0rem !important; padding-bottom: 0rem !important; }
-    .subtitle { margin-top: -0.4rem !important; color: #555; margin-bottom: 1rem; }
+    
+    /* Underrubriken med exakt -0.4rem för perfekt avstånd */
+    .subtitle { 
+        margin-top: -0.4rem !important; 
+        color: #555; 
+        margin-bottom: 1.5rem; 
+        font-size: 1.1rem; 
+    }
+    
     hr { margin: 0.5rem 0 !important; }
-    .stTabs [data-baseweb="tab-list"] { margin-bottom: -1rem; }
+    
+    /* Justering för radio-menyn så den ser ut som flikar */
+    .stRadio [data-baseweb="radio"] { padding-right: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -30,8 +39,8 @@ model = load_model()
 st.title("MNIST-projekt")
 st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', unsafe_allow_html=True)
 
-# --- 3. INPUT-FLIKAR ---
-tab_draw, tab_upload = st.tabs(["✍️ Rita", "📁 Ladda upp"])
+# Vi använder radio som "meny" för att garantera en nollställd vy vid växling
+mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
 def perform_analysis(img_input):
     features, img_28 = preprocess.preprocess_image(img_input)
@@ -41,9 +50,8 @@ def perform_analysis(img_input):
     conf = probs[pred]
     return pred, conf, img_28, probs
 
-# --- 4. RITA-FLIK ---
-with tab_draw:
-    # Sida-vid-sida för bilderna
+# --- 3. RITA-LÄGE ---
+if mode == "✍️ Rita":
     col_canvas, col_machine = st.columns(2)
     
     with col_canvas:
@@ -51,48 +59,51 @@ with tab_draw:
         canvas_result = st_canvas(
             fill_color="white", stroke_width=18, stroke_color="black",
             background_color="white", height=280, width=280,
-            drawing_mode="freedraw", key="canvas_live"
+            drawing_mode="freedraw", key="canvas_draw"
         )
     
-    if canvas_result.image_data is not None:
+    # Logik: Uppdatera bara om rutan faktiskt innehåller objekt
+    has_drawing = canvas_result.json_data and len(canvas_result.json_data["objects"]) > 0
+    
+    if has_drawing:
         img_draw = Image.fromarray(canvas_result.image_data.astype('uint8')).convert('L')
-        # Analysera bara om användaren ritat något
-        if np.mean(np.array(img_draw)) < 254:
-            pred, conf, img_28, probs = perform_analysis(img_draw)
-            
-            with col_machine:
-                st.caption("2. Maskinens vy (28x28)")
-                # Tvingar maskinens vy att matcha canvas-storleken (280px)
-                st.image(img_28, width=280)
-            
-            # --- PREDIKTION TÄTARE INPÅ ---
-            # Vi använder Markdown för att få siffra och % på samma rad
-            st.markdown(f"### Modellen gissar: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} säkerhet)</span>", unsafe_allow_html=True)
-            
-            # --- STAPELDIAGRAM TÄTARE ---
-            fig, ax = plt.subplots(figsize=(10, 2)) # Ännu lägre höjd
-            colors = ['#3498db'] * 10
-            colors[pred] = '#f1c40f' 
-            ax.bar(range(10), probs, color=colors)
-            ax.set_xticks(range(10))
-            ax.set_yticks([])
-            ax.set_ylim(0, 1.1)
-            plt.tight_layout()
-            st.pyplot(fig)
-        else:
-            with col_machine:
-                # Skapar en tom vit box för att hålla layouten stabil
-                st.image(Image.new("L", (280, 280), 255), width=280, caption="Väntar på indata...")
+        # Spara i session_state för att behålla resultatet vid "sudda"
+        st.session_state.last_draw = perform_analysis(img_draw)
 
-# --- 5. LADDA UPP-FLIK ---
-with tab_upload:
+    # Visa resultat om vi har en pågående ritning eller ett sparat minne
+    if "last_draw" in st.session_state and st.session_state.last_draw and has_drawing:
+        pred, conf, img_28, probs = st.session_state.last_draw
+        
+        with col_machine:
+            st.caption("2. Maskinens vy (28x28)")
+            st.image(img_28, width=280)
+        
+        st.markdown(f"### Modellen gissar: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} säkerhet)</span>", unsafe_allow_html=True)
+        
+        fig, ax = plt.subplots(figsize=(10, 2))
+        ax.bar(range(10), probs, color=['#3498db']*10)
+        ax.patches[pred].set_color('#f1c40f')
+        ax.set_xticks(range(10))
+        ax.set_yticks([])
+        plt.tight_layout()
+        st.pyplot(fig)
+    else:
+        # Helt tomt vid start eller om ingen ritning påbörjats
+        pass
+
+# --- 4. LADDA UPP-LÄGE (Fixad för NameError) ---
+else:
+    # Rensar gammalt rit-minne så det är tomt vid start
+    st.session_state.last_draw = None 
+    
     uploaded_file = st.file_uploader("Välj bild", type=["jpg", "png"], label_visibility="collapsed")
     
+    # Hela visningslogiken är nu isolerad inuti if-blocket
     if uploaded_file is not None:
-        col_orig, col_mach_up = st.columns(2)
         img_upload = Image.open(uploaded_file)
         pred, conf, img_28, probs = perform_analysis(img_upload)
         
+        col_orig, col_mach_up = st.columns(2)
         with col_orig:
             st.caption("Original")
             st.image(img_upload, width=280)
