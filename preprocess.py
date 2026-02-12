@@ -4,7 +4,9 @@ from scipy import ndimage
 
 
 def preprocess_image(path_or_img):
+
     # Läs in filen/den ritade bilden
+
     if isinstance(path_or_img, str):
         im = Image.open(path_or_img).convert("L")
     elif isinstance(path_or_img, np.ndarray):
@@ -15,8 +17,8 @@ def preprocess_image(path_or_img):
     arr_original = np.array(im)
     h, w = arr_original.shape
     
-    # === INTELLIGENT BAKGRUNDSANALYS (DIN IDÉ!) ===
-    # Analysera yttre 30% av bilden för att detektera om det finns skuggor/brus
+    # Bakgrundsanalys - detta vara "nyckeln" till att hantera "dåliga" bilder.
+    # Analysera yttre 30 % av bilden för att se om det finns skuggor/brus
     border_size = int(min(h, w) * 0.3)
     
     # Ta pixlar från kanterna (top, bottom, left, right)
@@ -64,7 +66,7 @@ def preprocess_image(path_or_img):
         x_min, x_max = xs.min(), xs.max()
         y_min, y_max = ys.min(), ys.max()
         
-        # Lägg till 5% marginal
+        # Lägg till 5 % marginal
         margin_x = max(1, int((x_max - x_min) * 0.05))
         margin_y = max(1, int((y_max - y_min) * 0.05))
         

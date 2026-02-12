@@ -6,15 +6,14 @@ import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 import preprocess 
 
-# --- 1. KONFIGURATION & CSS (KIRURGISK PRECISION) ---
+# KONFIGURATION & CSS (för kompakt format så allt kan få plats på en sida)
 st.set_page_config(page_title="MNIST Projekt", layout="centered")
 
 st.markdown("""
     <style>
     .block-container { padding-top: 1rem; }
     h1 { margin-bottom: 0rem !important; padding-bottom: 0rem !important; }
-    
-    /* Underrubriken med exakt -0.4rem för perfekt avstånd */
+        
     .subtitle { 
         margin-top: -0.4rem !important; 
         color: #555; 
@@ -24,7 +23,7 @@ st.markdown("""
     
     hr { margin: 0.5rem 0 !important; }
     
-    /* Justering för radio-menyn så den ser ut som flikar */
+    /* Radiomeny med flikar */
     .stRadio [data-baseweb="radio"] { padding-right: 20px; }
     </style>
     """, unsafe_allow_html=True)
@@ -35,11 +34,11 @@ def load_model():
 
 model = load_model()
 
-# --- 2. RUBRIKER ---
+# RUBRIKER
 st.title("MNIST-projekt")
 st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', unsafe_allow_html=True)
 
-# Vi använder radio som "meny" för att garantera en nollställd vy vid växling
+# Radio används som "meny" för att ge nollställning vid växling
 mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
 def perform_analysis(img_input):
@@ -50,7 +49,7 @@ def perform_analysis(img_input):
     conf = probs[pred]
     return pred, conf, img_28, probs
 
-# --- 3. RITA-LÄGE ---
+# Rita egen bild
 if mode == "✍️ Rita":
     col_canvas, col_machine = st.columns(2)
     
@@ -62,7 +61,7 @@ if mode == "✍️ Rita":
             drawing_mode="freedraw", key="canvas_draw"
         )
     
-    # Logik: Uppdatera bara om rutan faktiskt innehåller objekt
+    # Uppdatera bara om rutan faktiskt innehåller objekt
     has_drawing = canvas_result.json_data and len(canvas_result.json_data["objects"]) > 0
     
     if has_drawing:
@@ -70,7 +69,7 @@ if mode == "✍️ Rita":
         # Spara i session_state för att behålla resultatet vid "sudda"
         st.session_state.last_draw = perform_analysis(img_draw)
 
-    # Visa resultat om vi har en pågående ritning eller ett sparat minne
+    # Visa resultatet och låt det ligga kvar även om användaren tagit bort sin ritning
     if "last_draw" in st.session_state and st.session_state.last_draw and has_drawing:
         pred, conf, img_28, probs = st.session_state.last_draw
         
@@ -88,17 +87,17 @@ if mode == "✍️ Rita":
         plt.tight_layout()
         st.pyplot(fig)
     else:
-        # Helt tomt vid start eller om ingen ritning påbörjats
+        # Se till att det är tomt vid start
         pass
 
-# --- 4. LADDA UPP-LÄGE (Fixad för NameError) ---
+# Uppladdning
 else:
-    # Rensar gammalt rit-minne så det är tomt vid start
+    # Rensar gammalt ritminne så att vi får en tom sida
     st.session_state.last_draw = None 
     
     uploaded_file = st.file_uploader("Välj bild", type=["jpg", "png"], label_visibility="collapsed")
     
-    # Hela visningslogiken är nu isolerad inuti if-blocket
+    # Visningslogik i ett if-block
     if uploaded_file is not None:
         img_upload = Image.open(uploaded_file)
         pred, conf, img_28, probs = perform_analysis(img_upload)
