@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 import preprocess 
 
-# KONFIGURATION & CSS (för kompakt format så allt kan få plats på en sida)
+# Skapa ett kompakt format så allt kan få plats på en sida
 st.set_page_config(page_title="MNIST Projekt", layout="centered")
 
 st.markdown("""

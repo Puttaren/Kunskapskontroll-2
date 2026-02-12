@@ -2,7 +2,8 @@ import numpy as np
 from PIL import Image, ImageOps, ImageEnhance, ImageFilter
 from scipy import ndimage
 
-
+# Här är en preprocessing-funktion som transformerar en råbild till
+# MNIST-standard via en analys, bearbetning och geometrisk korrigering.
 def preprocess_image(path_or_img):
 
     # Läs in filen/den ritade bilden
@@ -17,7 +18,7 @@ def preprocess_image(path_or_img):
     arr_original = np.array(im)
     h, w = arr_original.shape
     
-    # Bakgrundsanalys - detta vara "nyckeln" till att hantera "dåliga" bilder.
+    # Bakgrundsanalys - detta var "nyckeln" till att hantera "dåliga" bilder.
     # Analysera yttre 30 % av bilden för att se om det finns skuggor/brus
     border_size = int(min(h, w) * 0.3)
     
