@@ -52,21 +52,12 @@ def preprocess_image(path_or_img):
     threshold_value = 130 if needs_brightness else 110
     im = im.point(lambda p: p if p > threshold_value else 0)
     
-    # Genom att räkna sammanhängande "öar" av pixlar vill jag försöka
-    # hjälpa appen att motverka försök att lura modellen.
-    arr_threshold = np.array(im)
-    labeled_array, num_blobs = ndimage.label(arr_threshold > 100)
-    
     arr = np.array(im)
 
     # Filtrera brus och hitta siffran i bilden
     im_clean = im.filter(ImageFilter.MedianFilter(size=3))
     arr_clean = np.array(im_clean)
     ys, xs = np.where(arr_clean > 100)
-
-    # Ettor med serif är ett problem, jag försöker åtgärda det
-    # genom att titta på aspect ratio (bredd/höjd-förhållandet)
-    aspect_ratio = 0
 
     if len(xs) == 0:
         # Om rutan är tom, skicka bara en tom 28x28
@@ -75,11 +66,6 @@ def preprocess_image(path_or_img):
         # Lägg till marginal för att få hela siffran
         x_min, x_max = xs.min(), xs.max()
         y_min, y_max = ys.min(), ys.max()
-
-        # Beräkna aspect ratio
-        digit_w = x_max - x_min + 1
-        digit_h = y_max - y_min + 1
-        aspect_ratio = digit_w / digit_h
         
         # Lägg till 5 % marginal
         margin_x = max(1, int((x_max - x_min) * 0.05))
@@ -133,5 +119,4 @@ def preprocess_image(path_or_img):
 
     # Returnera som array (1, 784)
     X = np.array(im28).astype("float64") / 255.0
-    # --- Returnera nu även siffra-statistik
-    return X.reshape(1, 784), im28, num_blobs, aspect_ratio
+    return X.reshape(1, 784), im28

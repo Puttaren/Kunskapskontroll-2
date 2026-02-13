@@ -47,14 +47,12 @@ st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', un
 mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
 def perform_analysis(img_input):
-    # Här har jag nu lagt till den utökade delen från den uppdaterade preprocessorn
-    features, img_28, num_blobs, aspect_ratio = preprocess.preprocess_image(img_input)
+    features, img_28 = preprocess.preprocess_image(img_input)
     scores = model.decision_function(features)[0]
     probs = np.exp(scores - np.max(scores)) / np.exp(scores - np.max(scores)).sum()
     pred = np.argmax(probs)
     conf = probs[pred]
-    # Returnera även statistiken till session_state
-    return pred, conf, img_28, probs, num_blobs, aspect_ratio
+    return pred, conf, img_28, probs
 
 # Rita egen bild
 if mode == "✍️ Rita":
@@ -90,19 +88,11 @@ if mode == "✍️ Rita":
 
     # Visa resultatet om det finns i minnet (även om rutan nyss tömts) 
     if "last_draw" in st.session_state and st.session_state.last_draw:
-        # Hämta in även blobbar och aspektförhållande
-        pred, conf, img_28, probs, num_blobs, aspect_ratio = st.session_state.last_draw
+        pred, conf, img_28, probs = st.session_state.last_draw
         
         with col_machine:
             st.caption("2. Maskinens vy (28x28)")
             st.image(img_28, width=280)
-
-        # Ge användaren feedback baserat på analysen ("lurendrejeri" och 1/9-problematik).
-        if num_blobs > 1:
-            st.warning(f"⚠️ Jag hittade {num_blobs} figurer. Rita bara en siffra för bäst resultat.")
-        
-        if pred == 9 and aspect_ratio < 0.35:
-            st.info("💡 Figuren är väldigt smal för en 9:a och kan eventuellt vara en 1:a med serif")
         
         st.markdown(f"### Modellen gissar: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} säkerhet)</span>", unsafe_allow_html=True)
         
@@ -113,9 +103,6 @@ if mode == "✍️ Rita":
         ax.set_yticks([])
         plt.tight_layout()
         st.pyplot(fig)
-    else:
-        # Se till att det är tomt vid start
-        pass
 
 # Uppladdning
 else:
@@ -130,8 +117,7 @@ else:
         st.session_state.last_upload = (perform_analysis(img_upload), img_upload)
 
     if "last_upload" in st.session_state and st.session_state.last_upload:
-        # --- Hämta även blobbar och aspektförhållande
-        (pred, conf, img_28, probs, num_blobs, aspect_ratio), original_img = st.session_state.last_upload
+        (pred, conf, img_28, probs), original_img = st.session_state.last_upload
         
         col_orig, col_mach_up = st.columns(2)
         with col_orig:
@@ -140,13 +126,6 @@ else:
         with col_mach_up:
             st.caption("Maskinens vy")
             st.image(img_28, width=280)
-
-        # Här kommer feedback-meddelande för uppladdade bilder (med min nya logik för extra kontroll)
-        if num_blobs > 1:
-            st.warning(f"⚠️ Bilden innehåller {num_blobs} separata delar. MNIST-modeller fungerar bäst med en siffra.")
-            
-        if pred == 9 and aspect_ratio < 0.35:
-            st.info("💡 Den här bilden är ovanligt smal för att vara en 9:a. Kan vara en etta med serif.")
             
         st.markdown(f"### Modellen gissar: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} säkerhet)</span>", unsafe_allow_html=True)
         
