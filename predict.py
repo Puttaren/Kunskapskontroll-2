@@ -63,22 +63,31 @@ if mode == "✍️ Rita":
     
     with col_canvas:
         st.caption("1. Rita här")
+        
+        if "canvas_key" not in st.session_state:
+            st.session_state.canvas_key = "canvas_draw"
+
         canvas_result = st_canvas(
             fill_color="white", stroke_width=18, stroke_color="black",
             background_color="white", height=280, width=280,
-            drawing_mode="freedraw", key="canvas_draw"
+            drawing_mode="freedraw", key=st.session_state.canvas_key
         )
+
+        # Knapp som nollställer rutan men behåller analysen i minnet
+        if st.button("Töm ritytan"):
+            st.session_state.canvas_key = f"canvas_{np.random.randint(0, 1000)}"
+            st.rerun()
     
     # Uppdatera bara om rutan faktiskt innehåller objekt
     has_drawing = canvas_result.json_data and len(canvas_result.json_data["objects"]) > 0
     
     if has_drawing:
         img_draw = Image.fromarray(canvas_result.image_data.astype('uint8')).convert('L')
-        # Spara i session_state för att behålla resultatet vid "sudda"
+        # Spara i session_state för att behålla resultatet vid "sudda" 
         st.session_state.last_draw = perform_analysis(img_draw)
 
-    # Visa resultatet och låt det ligga kvar även om användaren tagit bort sin ritning
-    if "last_draw" in st.session_state and st.session_state.last_draw and has_drawing:
+    # Visa resultatet om det finns i minnet (även om rutan nyss tömts) 
+    if "last_draw" in st.session_state and st.session_state.last_draw:
         pred, conf, img_28, probs = st.session_state.last_draw
         
         with col_machine:
@@ -97,18 +106,16 @@ if mode == "✍️ Rita":
 
 # Uppladdning
 else:
-    # Rensar gammalt ritminne så att vi får en tom sida
+    # Rensar gammalt ritminne så att vi får en tom sida 
     st.session_state.last_draw = None 
     
-    uploaded_file = st.file_uploader("Välj bild (max 10MB)", type=["jpg", "png"], label_visibility="collapsed")
+    uploaded_file = st.file_uploader("Välj bild", type=["jpg", "png"], label_visibility="collapsed")
     
-    # Visningslogik med storlekskontroll och minnesfunktion
     if uploaded_file is not None:
         img_upload = Image.open(uploaded_file)
-        # Spara både analys och bild i session_state för persistens
+        # Spara både analys och bild i session_state för persistens 
         st.session_state.last_upload = (perform_analysis(img_upload), img_upload)
 
-    # Låt bilden ligga kvar tills ny bild laddas upp/läget växlas
     if "last_upload" in st.session_state and st.session_state.last_upload:
         (pred, conf, img_28, probs), original_img = st.session_state.last_upload
         
