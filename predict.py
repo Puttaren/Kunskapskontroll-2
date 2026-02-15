@@ -5,6 +5,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from streamlit_drawable_canvas import st_canvas
 import preprocess 
+import scipy.ndimage as ndimage
 
 # Skapa ett kompakt format så allt kan få plats på en sida
 st.set_page_config(page_title="MNIST Projekt", layout="centered")
@@ -33,11 +34,37 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# Läs in modellen för prediktion
 @st.cache_resource
 def load_model():
-    return joblib.load("mnist_model_final_svc.joblib")
+    return joblib.load("mnist_svc_deskew_agument_model.joblib")
 
 model = load_model()
+
+# TTA-motor som skapar 20 varianter med små geometriska transformationer. 
+# Därefter får modellen analysera dem och fatta ett majoritetsbeslut.
+def tta_predict(features, model, n_variants=20):
+    img_2d = features.reshape(28, 28)
+    variants = [features] 
+    
+    for _ in range(n_variants - 1):
+        angle = np.random.uniform(-4, 4)
+        dx, dy = np.random.uniform(-0.8, 0.8, size=2)
+        
+        v = ndimage.rotate(img_2d, angle, reshape=False, order=1, mode='constant', cval=0)
+        v = ndimage.shift(v, [dy, dx], mode='constant', cval=0)
+        variants.append(v.flatten())
+    
+    # Juryn talar!
+    all_preds = model.predict(np.array(variants))
+    
+    # Räkna röster per klass (0-9)
+    counts = np.bincount(all_preds, minlength=10)
+    probs = counts / n_variants # Andel röster per siffra
+    pred = np.argmax(counts)
+    conf = probs[pred]
+    
+    return pred, conf, probs
 
 # Rubriker
 st.title("MNIST-projekt")
@@ -47,14 +74,16 @@ st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', un
 mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
 def perform_analysis(img_input):
-    # Här har jag nu lagt till den utökade delen från den uppdaterade preprocessorn
+    # 1. Preprocessing (inkl. din nya deskew-logik)
     features, img_28, num_blobs, aspect_ratio = preprocess.preprocess_image(img_input)
-    scores = model.decision_function(features)[0]
-    probs = np.exp(scores - np.max(scores)) / np.exp(scores - np.max(scores)).sum()
-    pred = np.argmax(probs)
-    conf = probs[pred]
+    
+    # 2. TTA-prediktion (istället för decision_function)
+    # Detta ger oss ett mer robust svar baserat på 20 analyser
+    pred, conf, probs = tta_predict(features, model, n_variants=20)
+
     # Returnera även statistiken till session_state
     return pred, conf, img_28, probs, num_blobs, aspect_ratio
+
 
 # Rita egen bild
 if mode == "✍️ Rita":
