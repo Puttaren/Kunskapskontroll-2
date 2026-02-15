@@ -45,7 +45,7 @@ model = load_model()
 # Därefter får modellen analysera dem och fatta ett majoritetsbeslut.
 def tta_predict(features, model, n_variants=20):
     img_2d = features.reshape(28, 28)
-    variants = [features] 
+    variants = [features.flatten()] 
     
     for _ in range(n_variants - 1):
         angle = np.random.uniform(-4, 4)
