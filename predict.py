@@ -37,6 +37,7 @@ st.markdown("""
 # Läs in modellen för prediktion
 @st.cache_resource
 def load_model():
+    # MIN KOMMENTAR: Vi laddar den tunga modellen som matchar din 99.32% träning
     return joblib.load("mnist_svc_deskew_agument_model.joblib")
 
 model = load_model()
@@ -44,6 +45,7 @@ model = load_model()
 # TTA-motor som skapar 20 varianter med små geometriska transformationer. 
 # Därefter får modellen analysera dem och fatta ett majoritetsbeslut.
 def tta_predict(features, model, n_variants=20):
+    # MIN KOMMENTAR: Vi skapar variationer för att se om t.ex. en 5:a blir en 0:a i vissa vinklar
     img_2d = features.reshape(28, 28)
     variants = [features.flatten()] 
     
@@ -74,16 +76,34 @@ st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', un
 mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
 def perform_analysis(img_input):
-    # 1. Preprocessing (inkl. din nya deskew-logik)
-    features, img_28, num_blobs, aspect_ratio = preprocess.preprocess_image(img_input)
+    # 1. Hämta all data från din nya preprocess
+    features, img_28, num_blobs, aspect_ratio, holes = preprocess.preprocess_image(img_input)
     
-    # 2. TTA-prediktion (istället för decision_function)
-    # Detta ger oss ett mer robust svar baserat på 20 analyser
+    # 2. Få modellens gissning via TTA
     pred, conf, probs = tta_predict(features, model, n_variants=20)
+    
+    # 3. STORS LÄGGAN: Logisk korrigering (Heuristik)
+    original_pred = pred
+    is_corrected = False
+    
+    # Fall 1: Uppenbar sexa som tolkas som femma
+    if holes == 1 and pred == 5:
+        pred = 6
+        is_corrected = True
+        
+    # Fall 2: Åtta som tolkas som något annat
+    elif holes >= 2 and pred != 8:
+        pred = 8
+        is_corrected = True
+        
+    # Fall 3: Nolla/Sexa/Nia som tolkas som en etta
+    elif holes == 1 and pred == 1:
+        possible_with_holes = [0, 4, 6, 8, 9]
+        # Välj den siffra med hål som juryn röstade mest på
+        pred = possible_with_holes[np.argmax(probs[possible_with_holes])]
+        is_corrected = True
 
-    # Returnera även statistiken till session_state
-    return pred, conf, img_28, probs, num_blobs, aspect_ratio
-
+    return pred, conf, img_28, probs, num_blobs, aspect_ratio, is_corrected, original_pred
 
 # Rita egen bild
 if mode == "✍️ Rita":
@@ -99,41 +119,37 @@ if mode == "✍️ Rita":
             st.session_state.canvas_key = "canvas_draw"
 
         canvas_result = st_canvas(
-            fill_color="white", stroke_width=18, stroke_color="black",
+            fill_color="white", stroke_width=12, stroke_color="black",
             background_color="white", height=280, width=280,
             drawing_mode="freedraw", key=st.session_state.canvas_key
         )
 
-        # Knapp som nollställer rutan men behåller analysen i minnet
         if st.button("Töm ritytan"):
             st.session_state.canvas_key = f"canvas_{np.random.randint(0, 1000)}"
             st.rerun()
     
-    # Uppdatera bara om rutan faktiskt innehåller objekt
     has_drawing = canvas_result.json_data and len(canvas_result.json_data["objects"]) > 0
     
     if has_drawing:
         img_draw = Image.fromarray(canvas_result.image_data.astype('uint8')).convert('L')
-        # Spara i session_state för att behålla resultatet vid "sudda" 
         st.session_state.last_draw = perform_analysis(img_draw)
 
-    # Visa resultatet om det finns i minnet (även om rutan nyss tömts) 
     if "last_draw" in st.session_state and st.session_state.last_draw:
-        # Hämta in även blobbar och aspektförhållande
-        pred, conf, img_28, probs, num_blobs, aspect_ratio = st.session_state.last_draw
+        # MIN KOMMENTAR: Packar upp 8 värden för att hantera korrigeringen
+        pred, conf, img_28, probs, num_blobs, aspect_ratio, is_corrected, original_pred = st.session_state.last_draw
         
         with col_machine:
             st.caption("2. Maskinens vy (28x28)")
             st.image(img_28, width=280)
 
-        # Ge användaren feedback baserat på analysen ("lurendrejeri" och 1/9-problematik).
+        # Feedback-logik
         if num_blobs > 1:
-            st.warning(f"⚠️ Jag hittade {num_blobs} figurer. Rita bara en siffra för bäst resultat.")
+            st.warning(f"⚠️ Jag hittade {num_blobs} figurer. Rita bara en siffra.")
         
-        if pred == 9 and aspect_ratio < 0.35:
-            st.info("💡 Figuren är väldigt smal för en 9:a och kan eventuellt vara en 1:a med serif")
+        if is_corrected:
+            st.success(f"✅ **Logisk korrigering:** Juryn trodde {original_pred}, men topologin (hål i siffran) bekräftar att det är en **{pred}**.")
         
-        st.markdown(f"### Modellen gissar: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} säkerhet)</span>", unsafe_allow_html=True)
+        st.markdown(f"### Resultat: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} jury-enighet)</span>", unsafe_allow_html=True)
         
         fig, ax = plt.subplots(figsize=(10, 2))
         ax.bar(range(10), probs, color=['#3498db']*10)
@@ -142,25 +158,19 @@ if mode == "✍️ Rita":
         ax.set_yticks([])
         plt.tight_layout()
         st.pyplot(fig)
-    else:
-        # Se till att det är tomt vid start
-        pass
 
 # Uppladdning
 else:
-    # Rensar gammalt ritminne så att vi får en tom sida 
     st.session_state.last_draw = None 
-    
     uploaded_file = st.file_uploader("Välj bild", type=["jpg", "png"], label_visibility="collapsed")
     
     if uploaded_file is not None:
         img_upload = Image.open(uploaded_file)
-        # Spara både analys och bild i session_state för persistens 
         st.session_state.last_upload = (perform_analysis(img_upload), img_upload)
 
     if "last_upload" in st.session_state and st.session_state.last_upload:
-        # --- Hämta även blobbar och aspektförhållande
-        (pred, conf, img_28, probs, num_blobs, aspect_ratio), original_img = st.session_state.last_upload
+        # MIN KOMMENTAR: Samma 8 värden här för konsekvens
+        (pred, conf, img_28, probs, num_blobs, aspect_ratio, is_corrected, original_pred), original_img = st.session_state.last_upload
         
         col_orig, col_mach_up = st.columns(2)
         with col_orig:
@@ -170,14 +180,10 @@ else:
             st.caption("Maskinens vy")
             st.image(img_28, width=280)
 
-        # Här kommer feedback-meddelande för uppladdade bilder (med min nya logik för extra kontroll)
-        if num_blobs > 1:
-            st.warning(f"⚠️ Bilden innehåller {num_blobs} separata delar. MNIST-modeller fungerar bäst med en siffra.")
+        if is_corrected:
+            st.success(f"✅ **Logisk korrigering:** Bilden analyserades som {original_pred}, men topologin tvingade fram en **{pred}**.")
             
-        if pred == 9 and aspect_ratio < 0.35:
-            st.info("💡 Den här bilden är ovanligt smal för att vara en 9:a. Kan vara en etta med serif.")
-            
-        st.markdown(f"### Modellen gissar: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} säkerhet)</span>", unsafe_allow_html=True)
+        st.markdown(f"### Resultat: **{pred}** &nbsp;&nbsp; <span style='color:green; font-size:1.2rem;'>({conf:.0%} jury-enighet)</span>", unsafe_allow_html=True)
         
         fig, ax = plt.subplots(figsize=(10, 2))
         ax.bar(range(10), probs, color=['#3498db']*10)
