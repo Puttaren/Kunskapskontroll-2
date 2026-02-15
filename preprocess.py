@@ -67,10 +67,16 @@ def preprocess_image(img_input):
     img_28x28 = np.zeros((28, 28), dtype=np.uint8)
     img_28x28[(28-h_res)//2 : (28-h_res)//2+h_res, (28-w_res)//2 : (28-w_res)//2+w_res] = digit_rescaled
     
+    # Normalisera 
     img_final = center_digit(img_28x28).astype('float32') / 255.0
     
     # Upprätningen
     img_deskewed = deskew(img_final)
+    
+    # Clip för att skydda mot avrundningsfel som stör Streamlit
+    img_deskewed = np.clip(img_deskewed, 0, 1)
+
+    # Skapa features för modellen (1 rad, 784 kolumner)
     features = img_deskewed.reshape(1, -1)
 
     return features, img_deskewed, num_blobs, aspect_ratio
