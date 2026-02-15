@@ -1,137 +1,84 @@
 import numpy as np
-from PIL import Image, ImageOps, ImageEnhance, ImageFilter
 from scipy import ndimage
+import cv2
 
-# Här är en preprocessing-funktion som transformerar en råbild till
-# MNIST-standard via en analys, bearbetning och geometrisk korrigering.
-def preprocess_image(path_or_img):
+# Hjälpfunktion för att räta upp en siffra som lutar för mycket
+# Detta hjälper modellen att fokusera på siffrans form.
+def deskew(image):
+    m = cv2.moments(image)
+    if abs(m['mu02']) < 1e-2:
+        return image.copy()
+    skew = m['mu11'] / m['mu02']
+    M = np.float32([[1, -skew, 0.5 * 28 * skew], [0, 1, 0]])
+    img_deskewed = cv2.warpAffine(image, M, (28, 28), flags=cv2.WARP_INVERSE_MAP | cv2.INTER_LINEAR)
+    return img_deskewed
 
-    # Läs in filen/den ritade bilden
+def get_digit_bounds(img_array):
+    rows = np.any(img_array > 0, axis=1)
+    cols = np.any(img_array > 0, axis=0)
+    if not np.any(rows) or not np.any(cols):
+        return None
+    rmin, rmax = np.where(rows)[0][[0, -1]]
+    cmin, cmax = np.where(cols)[0][[0, -1]]
+    return rmin, rmax, cmin, cmax
 
-    if isinstance(path_or_img, str):
-        im = Image.open(path_or_img).convert("L")
-    elif isinstance(path_or_img, np.ndarray):
-        im = Image.fromarray(path_or_img.astype('uint8')).convert("L")
-    else:
-        im = path_or_img.convert("L")
+def center_digit(img_28x28):
+    cy, cx = ndimage.center_of_mass(img_28x28)
+    shift_y = 14 - cy
+    shift_x = 14 - cx
+    return ndimage.shift(img_28x28, [shift_y, shift_x], mode='constant', cval=0)
+
+def preprocess_image(img_input):
+    img_array = np.array(img_input)
+
+    # Om bilden har 3 eller 4 kanaler (RGBA/RGB), gör om till gråskala
+    if len(img_array.shape) > 2:
+        img_array = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
+
+    # Kolla hörn-pixeln för att avgöra om vi behöver invertera (MNIST vill ha svart bakgrund)
+    if img_array[0, 0] > 127:
+        img_array = cv2.bitwise_not(img_array)
+
+    # Tröskelvärde för att få en ren svartvit bild
+    _, img_thresh = cv2.threshold(img_array, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Analysera topologi (antal figurer) och form
+    labeled_array, num_blobs = ndimage.label(img_thresh)
+    bounds = get_digit_bounds(img_thresh)
+
+    if bounds is None:
+        return np.zeros((1, 784)), np.zeros((28, 28)), 0, 0
+
+    rmin, rmax, cmin, cmax = bounds
+    digit = img_thresh[rmin:rmax+1, cmin:cmax+1]
     
-    arr_original = np.array(im)
-    h, w = arr_original.shape
-    
-    # Bakgrundsanalys - detta var "nyckeln" till att hantera "dåliga" bilder.
-    # Analysera yttre 30 % av bilden för att se om det finns skuggor/brus
-    border_size = int(min(h, w) * 0.3)
-    
-    # Ta pixlar från kanterna (top, bottom, left, right)
-    top_border = arr_original[:border_size, :]
-    bottom_border = arr_original[-border_size:, :]
-    left_border = arr_original[:, :border_size]
-    right_border = arr_original[:, -border_size:]
-    
-    # Beräkna medelvärdet av kanterna
-    border_mean = np.mean([
-        top_border.mean(),
-        bottom_border.mean(),
-        left_border.mean(),
-        right_border.mean()
-    ])
-    
-    # Om bakgrunden är ljus (> 200) = ren bakgrund, SKIPPA brightness
-    # Om bakgrunden är mörk (< 200) = skuggor finns, KÖR brightness
-    needs_brightness = border_mean < 200
-    
-    if needs_brightness:
-        # Bilden har skuggor/mörk bakgrund - ljusa upp
-        im = ImageEnhance.Brightness(im).enhance(1.75)
-        im = ImageEnhance.Contrast(im).enhance(1.2)
+    # Beräkna aspektförhållande (bredd/höjd) för feedback
+    aspect_ratio = (cmax - cmin) / (rmax - rmin) if (rmax - rmin) > 0 else 0
 
-    # Invertera och ta bort skuggor
-    im = ImageOps.invert(im)
-    
-    # Anpassa threshold baserat på om vi körde brightness
-    threshold_value = 130 if needs_brightness else 110
-    im = im.point(lambda p: p if p > threshold_value else 0)
-    
-    # Genom att räkna sammanhängande "öar" av pixlar vill jag försöka
-    # hjälpa appen att motverka försök att lura modellen.
-    arr_threshold = np.array(im)
-    labeled_array, num_blobs = ndimage.label(arr_threshold > 100)
-    
-    arr = np.array(im)
+    # Skala om till 20x20 (MNIST-standard bevarar proportioner inom denna box)
+    h, w = digit.shape
+    scale = 20.0 / max(h, w)
+    digit_rescaled = cv2.resize(digit, (None, None), fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
 
-    # Filtrera brus och hitta siffran i bilden
-    im_clean = im.filter(ImageFilter.MedianFilter(size=3))
-    arr_clean = np.array(im_clean)
-    ys, xs = np.where(arr_clean > 100)
+    # Placera i en 28x28-ram
+    h_res, w_res = digit_rescaled.shape
+    y_off = (28 - h_res) // 2
+    x_off = (28 - w_res) // 2
+    img_28x28 = np.zeros((28, 28), dtype=np.uint8)
+    img_28x28[y_off:y_off+h_res, x_off:x_off+w_res] = digit_rescaled
 
-    # Ettor med serif är ett problem, jag försöker åtgärda det
-    # genom att titta på aspect ratio (bredd/höjd-förhållandet)
-    aspect_ratio = 0
+    # Centrera baserat på tyngdpunkt (Center of Mass)
+    img_final_28x28 = center_digit(img_28x28)
 
-    if len(xs) == 0:
-        # Om rutan är tom, skicka bara en tom 28x28
-        im28 = Image.new("L", (28, 28), 0)
-    else:
-        # Lägg till marginal för att få hela siffran
-        x_min, x_max = xs.min(), xs.max()
-        y_min, y_max = ys.min(), ys.max()
+    # Normalisera pixelvärden (0-1)
+    img_final_28x28 = img_final_28x28.astype('float32') / 255.0
 
-        # Beräkna aspect ratio
-        digit_w = x_max - x_min + 1
-        digit_h = y_max - y_min + 1
-        aspect_ratio = digit_w / digit_h
-        
-        # Lägg till 5 % marginal
-        margin_x = max(1, int((x_max - x_min) * 0.05))
-        margin_y = max(1, int((y_max - y_min) * 0.05))
-        
-        x_min = max(0, x_min - margin_x)
-        x_max = min(w - 1, x_max + margin_x)
-        y_min = max(0, y_min - margin_y)
-        y_max = min(h - 1, y_max + margin_y)
-        
-        # Skapa en tajt box runt det faktiska innehållet
-        digit = im_clean.crop((x_min, y_min, x_max + 1, y_max + 1))
-   
-        # Skala till 20x20 (MNIST-standard)
-        w_d, h_d = digit.size
-        ratio = 20.0 / max(w_d, h_d)
-        new_size = (int(round(w_d * ratio)), int(round(h_d * ratio)))
-        digit = digit.resize(new_size, Image.Resampling.LANCZOS)
+    # Eftersom den nya modellen är tränad på "raka" siffror rätar vi upp även ritade/uppladdade bilder.
+    img_deskewed = deskew(img_final_28x28)
 
-        # Geometrisk centrering
-        temp_im = Image.new("L", (28, 28), 0)
-        left = (28 - new_size[0]) // 2
-        top = (28 - new_size[1]) // 2
-        temp_im.paste(digit, (left, top))
-        
-        # Finjustering med tyngdpunkt
-        arr_temp = np.array(temp_im)
-        
-        # Kontrollera att det finns innehåll
-        if arr_temp.sum() > 0:
-            cy, cx = ndimage.center_of_mass(arr_temp)
-            
-            shift_y = 14.0 - cy
-            shift_x = 14.0 - cx
-            
-            # Begränsa shift - lite mer generöst för vertikal justering
-            shift_y = np.clip(shift_y, -4, 4)  # Ökat från ±3 till ±4
-            shift_x = np.clip(shift_x, -3, 3)
-            
-            arr_centered = ndimage.shift(arr_temp, shift=[shift_y, shift_x], mode='constant', cval=0)
-        else:
-            arr_centered = arr_temp
-            
-        im28 = Image.fromarray(arr_centered.astype('uint8'))
+    # Vi plattar till den upprätade bilden för modellen (784 features)
+    features = img_deskewed.reshape(1, -1)
 
-    # Bättre svärta
-    im28 = ImageOps.autocontrast(im28)
-
-    # Suddighet som i MNIST-filerna
-    im28 = im28.filter(ImageFilter.GaussianBlur(radius=0.5))
-
-    # Returnera som array (1, 784)
-    X = np.array(im28).astype("float64") / 255.0
-    # --- Returnera nu även siffra-statistik
-    return X.reshape(1, 784), im28, num_blobs, aspect_ratio
+    # Nu returneras den upprätade bilden så att "Maskinens vy" 
+    # i Streamlit visar exakt vad modellen faktiskt analyserar.
+    return features, img_deskewed, num_blobs, aspect_ratio
