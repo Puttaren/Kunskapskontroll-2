@@ -1,0 +1,7 @@
+Efter att ha funderat lite på hur jag skulle ta mig an kunskapskontroll 2 så tänkte jag att det bästa måste vara att bygga en stabil bas genom att fokusera på grundflödet i maskininlärning. Jag tittade igenom föreläsningarna igen och lät bokens arbetsgång vara stommen för min egen hantering i början. 
+
+Liksom i boken blev valet en standard-SVC-modell (Support Vector Classifier) och eftersom jag hade "tjuvstartat" så blev den utan någon dimensionsreducering (som Terese vid tillfället inte hade gått igenom än). 
+
+För bästa möjliga datahantering normaliserade jag alla pixlar (784 features) genom att helt sonika dela dem med 255.0, vilket undanröjde behovet av StandardScaler.
+
+Efter en hel del experimenterande och "skruvande på alla rattar" blev resultatet en färdig produktionsmodell med en accuracy på 0.9834. Det var ett mer än godkänt resultat och jag gick därför vidare till preprocessing och prediktion. 

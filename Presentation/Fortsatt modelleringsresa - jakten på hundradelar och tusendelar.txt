@@ -1,0 +1,22 @@
+Från den stabila baslinje jag hade i min första "färdiga" modellering, en SVC med en accuracy på 0.9834 fick jag förnyad motivation när mina kamrater fick värden upppåt 0.985 och högre. Jag satte därför på mig tänkarhatten och körde vidare. 
+
+1. Jag hade inte tidigare använt PCA så det var första steget. Jag experimenterade också med standardscaler, men återgick ganska snart till mitt "trick" att normalisera data genom att dela dem med 255.0 - det bevarar "tystnaden" i bakgrunden och var gynnsamt för dimensionsreduceringen. 
+
+2. De 70 000 MNIST-bilderna delades 80/20 med stratifiering för att bibehålla samma klassfördelning i alla steg.
+
+3. Jag experimenterade mycket med olika modeller, med voting och allsköns alternativ, men det visade sig hela tiden att SVC med rbf-kärna var den starkaste modellen. Med hjälp av dimensionsreducering (PCA) hanterade jag det som Terese på föreläsningen kallade "the curse of dimensionality". Diverse analyser pekade på en kraftig reducering av dimensioner och efter diverse bildbehandling och handpåläggning visade det sig att 112 komponenter var "sweetspot" (jag gjorde en "fuling" och verifierade på testsetet. Jag är medveten om att det inte är "koscher", men i tröttheten valde jag att ta en genväg). 
+
+4. Därefter skapades en pipeline-arkitektur som mall, eller "single source of truth", för att säkerställa att testdata skulle transformeras exakt likadant som träningsdata.
+
+5. SVC med PCA var bra och gav fina siffror, men det som verkligen lyfte modelleringen var en avancerad bildbearbetning av underlaget. 
+   - Deskewing (Upprätning): Avancerad matematik användes för at beräkna bildens "moment" och räta upp siffror som är skrivna för snett. Detta eliminerar lutning som felkälla och gör att modellen kan fokusera på siffrans form.
+   - Ultra-augmentation: Här var en riktig nyckel till bättre accuracy. Genom att använda skiftningar (1 pixel åt fyra håll), olika rotationer och  grader samt zoom (0,9 och 1,1) utökades de befintliga träningsdata från 56 000 till 616 000 rader!
+   - Feature Extraction (HOG): Det här var ett sidospår som jag experimenterade med, men det visade sig att obearbetade pixlar med PCA presterade bättre på min nu mycket större datamängd.
+
+6. Vad blev då resultatet? Min accuracy gick via mina olika experiment sakta uppåt och till slut landade det på 0.9928 - det innebär att bland de 14 000 testbilderna gissade modellen fel endast 101 gånger! 
+
+7. Vidare hantering. En analys av de fel som återstår visar att en sak som man kan försöka förbättra är hanteringen av femmor med mycket stora underöglor som ofta misstas för nollor eller sexor. Det är dock en liten detalj och kanske något som går att hantera i steg 8 nedan. Analysens stora aha-ögonblick var dock när jag tittade på de 101 siffrorna och såg att många av dem helt enkelt är för dåligt ritade för att det ska vara rimligt att kräva att modellen kan hantera dem. Jag kunde knappt själv ens gissa rätt på många av dem. Här har vi alltså närmat oss "Bayes Error Rate", den punkt som ger lägsta möjliga felnivå givet datakvaliteten).
+
+8. Nästa steg blir att släppa modelleringen och i stället ta tag i preprocessingen och prediktionen igen. Det jag hittat i min efterforskning är TTA (Test-Time Augmentation), det vill säga att ta den ritade/uppladdade bilden och bearbeta den som jag bearbetade mina träningsbilder för att få flera augmenterade varianter av den, analysera alla varianter och sedan ge en prediktion baserat på majoritetsbeslut. Huruvida detta faktiskt ger någon större fördel är svårt att bedöma - en bild i taget ger inget entydigt resultat att förlita sig på, men det är tanken som räknas. Dessutom har jag läst mig till att TTA är en metod som de facto används för att ge en mer robust hantering i professionella bildanalyssystem.
+
+9. Ett alternativ skulle kunna vara att låta träna 30-40-50 olika SVM-modeller och sedan låta dessa rösta om bilderna i analysen. Då kanske det hade gått att krympa antalet de felgissade bilder något, men de sämsta bilderna hade nog ändå inte gått att hantera.
