@@ -8,6 +8,9 @@ import preprocess
 import scipy.ndimage as ndimage
 import os
 import time
+import importlib
+
+importlib.reload(preprocess) # Detta tvingar fram den nya koden varje gång!
 
 # 1. KONFIGURATION OCH STIL
 st.set_page_config(page_title="MNIST Projekt", layout="centered")
@@ -54,10 +57,11 @@ def tta_predict(features, model, n_variants=20):
     return pred, conf, probs
 
 # 4. ANALYSFUNKTION
-def perform_analysis(img_input):
-    features, img_28, num_blobs, aspect_ratio, holes = preprocess.preprocess_image(img_input)
+def perform_analysis(img_input, is_upload=False): # Lägg till is_upload här
+    # Skicka vidare flaggan till din preprocess-motor
+    features, img_28, num_blobs, aspect_ratio, holes = preprocess.preprocess_image(img_input, is_upload=is_upload)
     pred, conf, probs = tta_predict(features, model, n_variants=20)
-    
+
     original_pred = pred
     is_corrected = False
     
@@ -133,7 +137,7 @@ if mode == "✍️ Rita":
     
     if canvas_result.json_data and len(canvas_result.json_data["objects"]) > 0:
         img_draw = Image.fromarray(canvas_result.image_data.astype('uint8')).convert('L')
-        st.session_state.last_draw = perform_analysis(img_draw)
+        st.session_state.last_draw = perform_analysis(img_draw, is_upload=False)
 
     if "last_draw" in st.session_state and st.session_state.last_draw:
         pred, conf, img_28, probs, num_blobs, aspect_ratio, is_corrected, original_pred, reasoning, holes = st.session_state.last_draw
@@ -167,8 +171,7 @@ else:
     
     if uploaded_file is not None:
         img_upload = Image.open(uploaded_file)
-        st.session_state.last_upload = (perform_analysis(img_upload), img_upload)
-
+        st.session_state.last_upload = (perform_analysis(img_upload, is_upload=True), img_upload)
     if "last_upload" in st.session_state and st.session_state.last_upload:
         (pred, conf, img_28, probs, num_blobs, aspect_ratio, is_corrected, original_pred, reasoning, holes), original_img = st.session_state.last_upload
         
