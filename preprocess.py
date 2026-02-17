@@ -54,26 +54,30 @@ def preprocess_image(img_input, is_upload=False):
     digit = img_array[rmin:rmax+1, cmin:cmax+1]
 
     # Förtjockning & Hålräkning
+    # FÖRTJOCKNING & HÅLRÄKNING (Uppdaterad för att kolla alla figurer)
     digit_bin = (digit > 110).astype(np.uint8)
     digit_bin = ndimage.binary_dilation(digit_bin, structure=np.ones((2,2))).astype(np.uint8)
 
     labeled_blobs, num_found_blobs = ndimage.label(digit_bin)
     num_holes = 0
-    if num_found_blobs > 0:
-        sizes = np.bincount(labeled_blobs.ravel())
-        largest_label = sizes[1:].argmax() + 1
-        only_digit_mask = (labeled_blobs == largest_label).astype(np.uint8)
+    
+    # Vi loopar nu igenom VARJE figur som hittats (inte bara den största)
+    for label_idx in range(1, num_found_blobs + 1):
+        single_blob_mask = (labeled_blobs == label_idx).astype(np.uint8)
         
-        filled = ndimage.binary_fill_holes(only_digit_mask)
-        holes_mask = filled.astype(int) - only_digit_mask.astype(int)
+        # Fyll hål för just denna figur
+        filled = ndimage.binary_fill_holes(single_blob_mask)
+        holes_mask = filled.astype(int) - single_blob_mask.astype(int)
         labeled_holes, n_found_holes = ndimage.label(holes_mask > 0)
         
+        # Räkna giltiga hål i denna figur
         for i in range(1, n_found_holes + 1):
-            if np.sum(labeled_holes == i) > 5:
+            if np.sum(labeled_holes == i) > 5: # Filter för småbrus
                 num_holes += 1
-        
-        if num_holes > 2:
-            num_holes = 0
+
+    # Säkerhetsspärr för extremt kladd
+    if num_holes > 2:
+        num_holes = 0
 
     # Skalning & Finalisering
     h_d, w_d = digit.shape
