@@ -90,4 +90,4 @@ def preprocess_image(img_input, is_upload=False):
 
     aspect_ratio = (cmax - cmin) / (rmax - rmin) if (rmax - rmin) > 0 else 0
     
-    return img_final.reshape(1, 784), img_final, 1, aspect_ratio, num_holes
+    return img_final.reshape(1, 784), img_final, num_found_blobs, aspect_ratio, num_holes

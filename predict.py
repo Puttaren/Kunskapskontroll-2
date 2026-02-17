@@ -166,15 +166,15 @@ if mode == "✍️ Rita":
                 st.write(f"**Beslut:** {reasoning}")
                 st.write(f"**Detaljer:** Hål: {holes} | Figurer: {num_blobs} | Ratio: {aspect_ratio:.2f}")
 
-        fig, ax = plt.subplots(figsize=(10, 2))
-        ax.bar(range(10), probs, color=['#3498db']*10)
-        ax.patches[pred].set_color('#f1c40f')
-        ax.set_xticks(range(10))
-        ax.set_yticks([])
-        st.pyplot(fig)
-        
-        # Visa feedback-sektionen här
-        show_feedback_section(pred, img_28)
+            fig, ax = plt.subplots(figsize=(10, 2))
+            ax.bar(range(10), probs, color=['#3498db']*10)
+            ax.patches[pred].set_color('#f1c40f')
+            ax.set_xticks(range(10))
+            ax.set_yticks([])
+            st.pyplot(fig)
+            
+            # Visa feedback-sektionen här
+            show_feedback_section(pred, img_28)
 
 else:
     st.session_state.last_draw = None 
@@ -216,12 +216,12 @@ else:
             st.write(f"**Beslut:** {reasoning}")
             st.write(f"**Detaljer:** Hål: {holes} | Figurer: {num_blobs} | Ratio: {aspect_ratio:.2f}")
 
-        fig, ax = plt.subplots(figsize=(10, 2))
-        ax.bar(range(10), probs, color=['#3498db']*10)
-        ax.patches[pred].set_color('#f1c40f')
-        ax.set_xticks(range(10))
-        ax.set_yticks([])
-        st.pyplot(fig)
+            fig, ax = plt.subplots(figsize=(10, 2))
+            ax.bar(range(10), probs, color=['#3498db']*10)
+            ax.patches[pred].set_color('#f1c40f')
+            ax.set_xticks(range(10))
+            ax.set_yticks([])
+            st.pyplot(fig)
 
-        # Visa feedback-sektionen här
-        show_feedback_section(pred, img_28)
+            # Visa feedback-sektionen här
+            show_feedback_section(pred, img_28)
