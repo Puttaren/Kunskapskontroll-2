@@ -9,29 +9,36 @@ def center_digit(img_28x28):
     return ndimage.shift(img_28x28, [14 - cy, 14 - cx], mode='constant', cval=0)
 
 def preprocess_image(img_input, is_upload=False):
-    # 1. Gråskala
+    # Gråskala
     img = img_input.convert('L')
     img_array = np.array(img).astype(np.float32)
 
-    # --- STEG 1: DIN MJUKA BRIGHTNESS BOOST ---
-    if is_upload:
-        h, w = img_array.shape
-        b = 4
-        edges = np.concatenate([img_array[:b,:].flatten(), img_array[-b:,:].flatten(),
-                                img_array[:,:b].flatten(), img_array[:, -b:].flatten()])
-        if np.mean(edges) < 250:
-            img_array = img_array + 70
-            img_array = np.clip(img_array, 0, 255)
+    # --- ROBUST LJUS-BOOST & UNIVERSELL RAM-TVÄTT ---
+    h, w = img_array.shape
+    b = 4
+    edges = np.concatenate([img_array[:b,:].flatten(), img_array[-b:,:].flatten(),
+                            img_array[:,:b].flatten(), img_array[:, -b:].flatten()])
 
-    # 2. Invertering
+    # Vi använder median för att avgöra om papperet är mörkt utan att störas av siffran
+    if is_upload and np.median(edges) < 250:
+        img_array = img_array + 70
+        img_array = np.clip(img_array, 0, 255)
+
+    # Tvingar ramen att bli helt vit för att underlätta cropping för både rita och upload
+    img_array[:b, :] = 255
+    img_array[-b:, :] = 255
+    img_array[:, :b] = 255
+    img_array[:, -b:] = 255
+
+    # Invertering
     if img_array[0, 0] > 127: 
         img_array = 255 - img_array
 
-    # 3. Binär mask (Tröskel 100 för att inte tappa den tunna ettan)
+    # Binär mask
     threshold = 100 if is_upload else 45
     binary_mask = (img_array > threshold).astype(np.uint8)
 
-    # 4. Cropping
+    # Cropping
     rows = np.any(binary_mask > 0, axis=1)
     cols = np.any(binary_mask > 0, axis=0)
     if not np.any(rows) or not np.any(cols):
@@ -41,8 +48,7 @@ def preprocess_image(img_input, is_upload=False):
     cmin, cmax = np.where(cols)[0][[0, -1]]
     digit = img_array[rmin:rmax+1, cmin:cmax+1]
 
-    # --- STEG 5: FÖRTJOCKNING & HÅLRÄKNING ---
-    # Vi gör siffran lite tjockare för att hjälpa modellen med tunna ettor
+    # FÖRTJOCKNING & HÅLRÄKNING
     digit_bin = (digit > 110).astype(np.uint8)
     digit_bin = ndimage.binary_dilation(digit_bin, structure=np.ones((2,2))).astype(np.uint8)
 
@@ -61,24 +67,21 @@ def preprocess_image(img_input, is_upload=False):
             if np.sum(labeled_holes == i) > 5:
                 num_holes += 1
         
-        # Rimlighetskontroll: Över 2 hål är alltid brus på papper
         if num_holes > 2:
             num_holes = 0
 
-    # 6. Skalning & Finalisering
+    # Skalning & Finalisering
     h_d, w_d = digit.shape
     scale = 20.0 / max(h_d, w_d)
     new_size = (int(w_d * scale), int(h_d * scale))
-    # Vi använder den förtjockade binära bilden för att skapa den slutgiltiga 28x28
     digit_rescaled = np.array(Image.fromarray((digit_bin * 255).astype(np.uint8)).resize(new_size, Image.Resampling.LANCZOS))
     
     img_28 = np.zeros((28, 28), dtype=np.uint8)
     y_off, x_off = (28 - digit_rescaled.shape[0]) // 2, (28 - digit_rescaled.shape[1]) // 2
     img_28[y_off:y_off+digit_rescaled.shape[0], x_off:x_off+digit_rescaled.shape[1]] = digit_rescaled
     
-    # FIX FÖR RUNTIME ERROR: Vi lägger till np.clip
     img_final = center_digit(img_28.astype('float32')) / 255.0
-    img_final = np.clip(img_final, 0.0, 1.0) # <--- HÄR ÄR LAGNINGEN!
+    img_final = np.clip(img_final, 0.0, 1.0)
 
     aspect_ratio = (cmax - cmin) / (rmax - rmin) if (rmax - rmin) > 0 else 0
     
