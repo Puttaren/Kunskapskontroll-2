@@ -10,10 +10,10 @@ import os
 import time
 import importlib
 
-importlib.reload(preprocess) # Detta tvingar fram den nya koden varje gång!
+importlib.reload(preprocess) # Tvinga användning av senaste koden - no cache please!
 
 # 1. KONFIGURATION OCH STIL
-st.set_page_config(page_title="MNIST Projekt", layout="centered")
+st.set_page_config(page_title="Sifferprediktering", layout="centered")
 
 st.markdown("""
     <style>
@@ -112,9 +112,9 @@ def show_feedback_section(pred, img_28):
             st.success(f"Sparad i: {filename}")
 
 # 5. GRÄNSSNITT
-st.title("MNIST-projekt – new and improved")
+st.title("MNIST-projekt för prediktering av siffror")
 st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', unsafe_allow_html=True)
-st.caption("Robust sifferigenkänning utan deskew-bias")
+st.caption("Robust sifferigenkänning med grundlig modellering och hantering av diverse problem med siffror\n\nVänligen försök inte att 'lura' modellen.\n\nRita/ladda upp rimliga siffror för att testa den maskininlärda modellen snarare än bildbearbetningen. ")
 
 mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
