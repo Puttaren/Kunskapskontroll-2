@@ -13,28 +13,33 @@ def preprocess_image(img_input, is_upload=False):
     img = img_input.convert('L')
     img_array = np.array(img).astype(np.float32)
 
-    # --- ROBUST LJUS-BOOST & UNIVERSELL RAM-TVÄTT ---
+    # Identifiera bakgrunden innan vi börjar modifiera pixlarna
     h, w = img_array.shape
     b = 4
-    edges = np.concatenate([img_array[:b,:].flatten(), img_array[-b:,:].flatten(),
-                            img_array[:,:b].flatten(), img_array[:, -b:].flatten()])
+    edges_orig = np.concatenate([img_array[:b,:].flatten(), img_array[-b:,:].flatten(),
+                                 img_array[:,:b].flatten(), img_array[:, -b:].flatten()])
+    
+    # Avgör om bakgrunden är ljus baserat på medianen av kanterna
+    is_light_bg = np.median(edges_orig) > 127
 
-    # Vi använder median för att avgöra om papperet är mörkt utan att störas av siffran
-    if is_upload and np.median(edges) < 250:
-        img_array = img_array + 70
-        img_array = np.clip(img_array, 0, 255)
+    # Ljus-boost och ram-tvätt anpassat efter bakgrunden
+    if is_light_bg:
+        # Foto/Ljus bakgrund: Boost vid behov och tvätta ramen vit
+        if is_upload and np.median(edges_orig) < 250:
+            img_array = img_array + 70
+            img_array = np.clip(img_array, 0, 255)
+        img_array[:b, :] = 255; img_array[-b:, :] = 255
+        img_array[:, :b] = 255; img_array[:, -b:] = 255
+    else:
+        # Redan inverterad/mörk bakgrund: Tvätta ramen svart
+        img_array[:b, :] = 0; img_array[-b:, :] = 0
+        img_array[:, :b] = 0; img_array[:, -b:] = 0
 
-    # Tvingar ramen att bli helt vit för att underlätta cropping för både rita och upload
-    img_array[:b, :] = 255
-    img_array[-b:, :] = 255
-    img_array[:, :b] = 255
-    img_array[:, -b:] = 255
-
-    # Invertering
-    if img_array[0, 0] > 127: 
+    # Enhetlig invertering: Vi vill alltid landa i vit siffra på svart bakgrund
+    if is_light_bg:
         img_array = 255 - img_array
 
-    # Binär mask
+    # Binär mask (Tröskel 100 för att inte tappa den tunna ettan)
     threshold = 100 if is_upload else 45
     binary_mask = (img_array > threshold).astype(np.uint8)
 
@@ -48,7 +53,7 @@ def preprocess_image(img_input, is_upload=False):
     cmin, cmax = np.where(cols)[0][[0, -1]]
     digit = img_array[rmin:rmax+1, cmin:cmax+1]
 
-    # FÖRTJOCKNING & HÅLRÄKNING
+    # Förtjockning & Hålräkning
     digit_bin = (digit > 110).astype(np.uint8)
     digit_bin = ndimage.binary_dilation(digit_bin, structure=np.ones((2,2))).astype(np.uint8)
 
