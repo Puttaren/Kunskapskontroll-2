@@ -112,9 +112,9 @@ def show_feedback_section(pred, img_28):
             st.success(f"Sparad i: {filename}")
 
 # 5. GRÄNSSNITT
-st.title("MNIST-projekt för prediktering av siffror")
+st.title("MNIST-projekt\nPrediktering av siffror")
 st.markdown('<p class="subtitle">Kunskapskontroll 2 - Michael Broström</p>', unsafe_allow_html=True)
-st.caption("Robust sifferigenkänning med grundlig modellering och hantering av diverse problem med siffror\n\nVänligen försök inte att 'lura' modellen.\n\nRita/ladda upp rimliga siffror för att testa den maskininlärda modellen snarare än bildbearbetningen. ")
+st.caption("Robust sifferigenkänning med grundlig modellering och hantering av diverse problem med siffror\nVänligen försök inte att 'lura' modellen.\nRita/ladda upp rimliga siffror för att testa den maskininlärda modellen snarare än bildbearbetningen. ")
 
 mode = st.radio("Läge:", ["✍️ Rita", "📁 Ladda upp"], horizontal=True, label_visibility="collapsed")
 
