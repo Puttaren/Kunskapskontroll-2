@@ -62,8 +62,8 @@ def tta_predict(features, model, n_variants=20):
     return pred, conf, probs
 
 # Analysfunktion
-# Här kommer en is_upload-flagga för att styra hanteringen om bilden ritas eller laddas upp
-# samt en topologisk analys av bilden för att se om modellen "blir lurad"
+# En is_upload-flagga styr hanteringen av ritade/uppladdade bilder
+# den topologiska analysen visar om modellen "blir lurad"
 def perform_analysis(img_input, is_upload=False): 
     features, img_28, num_blobs, aspect_ratio, holes = preprocess.preprocess_image(img_input, is_upload=is_upload)
     pred, conf, probs = tta_predict(features, model, n_variants=25) 
@@ -71,26 +71,26 @@ def perform_analysis(img_input, is_upload=False):
     original_pred = pred
     reasoning = ""
 
-    # Fall 1: Siffran 8 (Tvingande logik - två hål ljuger aldrig)
+    # Fall 1: Siffran 8 (två hål ljuger inte!)
     if holes == 2 and pred != 8:
         reasoning = f"Logik: {holes} hål detekterade. Detta är sannolikt en åtta."
     
-    # Fall 2: Misstänkt sexa (Meddela, men ändra INTE prediktionen)
+    # Fall 2: Misstänkt sexa 
     elif holes == 1 and pred == 5:
         reasoning = "Notera: Hål detekterat, vilket indikerar att detta sannolikt är en sexa."
     
     return pred, conf, img_28, probs, num_blobs, aspect_ratio, original_pred, reasoning, holes
 
-# --- HJÄLPFUNKTION FÖR FEEDBACK ---
+# Användaren kan bistå med vidare träning om modellen gissar fel
 def show_feedback_section(pred, img_28):
     st.divider()
     with st.expander("🛠️ Hjälp modellen att bli bättre"):
         st.write("Ange rätt siffra nedan för att spara bilden till framtida träning.")
         
-        # Definiera den nya sökvägen (relativt till där predict.py körs)
+        # Definiera den nya sökvägen 
         target_folder = os.path.join("notebooks", "collected_data")
         
-        # Skapa mappen (inklusive föräldramappar om de saknas)
+        # Skapa mappen 
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
 
@@ -100,13 +100,13 @@ def show_feedback_section(pred, img_28):
             save_img = (img_28 * 255).astype(np.uint8) if img_28.max() <= 1.0 else img_28.astype(np.uint8)
             timestamp = int(time.time())
             
-            # Skapa filnamnet med os.path.join för att slippa krångel med snedstreck
+            # Skapa filnamnet med os.path.join
             filename = os.path.join(target_folder, f"label_{correct_label}_{timestamp}.png")
             
             Image.fromarray(save_img).save(filename)
             st.success(f"Sparad i: {filename}")
 
-# 5. GRÄNSSNITT
+# Gränssnitt
 st.title("MNIST-projekt")
 st.markdown('<p class="subtitle">Prediktering av siffror.  \nEtt projekt av Michael Broström för Kunskapskontroll 2</p>', unsafe_allow_html=True)
 st.caption("Robust sifferigenkänning med grundlig modellering och hantering av diverse problem med siffror.  \nVänligen försök inte att 'lura' modellen. Rita/ladda upp rimliga siffror för att testa den maskininlärda  \nmodellen snarare än bildbearbetningen. ")
@@ -173,7 +173,7 @@ if mode == "✍️ Rita":
             ax.set_yticks([])
             st.pyplot(fig)
             
-            # Visa feedback-sektionen här
+            # Visa feedback
             show_feedback_section(pred, img_28)
 
 else:
@@ -223,5 +223,5 @@ else:
             ax.set_yticks([])
             st.pyplot(fig)
 
-            # Visa feedback-sektionen här
+            # Visa feedback
             show_feedback_section(pred, img_28)

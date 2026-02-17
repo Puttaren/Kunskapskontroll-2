@@ -22,24 +22,24 @@ def preprocess_image(img_input, is_upload=False):
     # Avgör om bakgrunden är ljus baserat på medianen av kanterna
     is_light_bg = np.median(edges_orig) > 127
 
-    # Ljus-boost och ram-tvätt anpassat efter bakgrunden
+    # Ljusa upp och städa av ramen
     if is_light_bg:
-        # Foto/Ljus bakgrund: Boost vid behov och tvätta ramen vit
+        # Foto/Ljus bakgrund: Boosta vid behov och gör ramen vit
         if is_upload and np.median(edges_orig) < 250:
             img_array = img_array + 70
             img_array = np.clip(img_array, 0, 255)
         img_array[:b, :] = 255; img_array[-b:, :] = 255
         img_array[:, :b] = 255; img_array[:, -b:] = 255
     else:
-        # Redan inverterad/mörk bakgrund: Tvätta ramen svart
+        # Redan inverterad/mörk bakgrund: Gör ramen svart
         img_array[:b, :] = 0; img_array[-b:, :] = 0
         img_array[:, :b] = 0; img_array[:, -b:] = 0
 
-    # Enhetlig invertering: Vi vill alltid landa i vit siffra på svart bakgrund
+    # Enhetlig invertering så att siffran alltid blir vit på svart bakgrund
     if is_light_bg:
         img_array = 255 - img_array
 
-    # Binär mask (Tröskel 100 för att inte tappa den tunna ettan)
+    # Binär mask (Tröskel 100 för att inte tappa tunna ettor)
     threshold = 100 if is_upload else 45
     binary_mask = (img_array > threshold).astype(np.uint8)
 
@@ -54,14 +54,13 @@ def preprocess_image(img_input, is_upload=False):
     digit = img_array[rmin:rmax+1, cmin:cmax+1]
 
     # Förtjockning & Hålräkning
-    # FÖRTJOCKNING & HÅLRÄKNING (Uppdaterad för att kolla alla figurer)
     digit_bin = (digit > 110).astype(np.uint8)
     digit_bin = ndimage.binary_dilation(digit_bin, structure=np.ones((2,2))).astype(np.uint8)
 
     labeled_blobs, num_found_blobs = ndimage.label(digit_bin)
     num_holes = 0
     
-    # Vi loopar nu igenom VARJE figur som hittats (inte bara den största)
+    # Loopar igenom figurer som hittats
     for label_idx in range(1, num_found_blobs + 1):
         single_blob_mask = (labeled_blobs == label_idx).astype(np.uint8)
         
