@@ -1,0 +1,35 @@
+Självklart! Här är den kompletta, uppdaterade punktlistan som sammanfattar din resa från en grundläggande modell till ett högpresterande system. Den här listan är perfekt att ha som grund för din rapport under rubriken "Genomförande" eller "Metod".
+
+---
+
+## Sammanfattning av projektets utveckling
+
+### 🧠 Databerikning & Modelloptimering
+
+* **Hard Example Mining:** Vi identifierade och inkluderade specifika bilder som modellen tidigare misslyckats med för att tvinga fram skarpare beslutshörnor.
+* **Domain Adaptation:** Vi integrerade dina egna handritade siffror direkt i träningsdatat för att anpassa modellen efter din specifika handstil.
+* **Super-Ultra Augmentation:** Datasetet skalades upp till över **841 000 rader** genom en kombination av elastisk deformation, rotation, skiftning och zoom.
+* **Standardisering & Whitening:** Vi implementerade `StandardScaler` och PCA `whiten=True` för att centrera datan kring noll, vilket är avgörande för att SVC-algoritmen ska konvergera snabbt och exakt.
+
+### 🛠️ Avancerad Bildbehandling & Topologi
+
+* **Universell Bakgrundshantering:** Systemet analyserar nu automatiskt bildens kanter för att avgöra om det rör sig om en ljus eller mörk bakgrund, vilket gör appen kompatibel med både foton och digitala ritningar.
+* **Robust Håldetektering:** Vi uppgraderade logiken till att räkna hål i *samtliga* detekterade figurer, vilket ger en mer exakt topologisk analys av komplexa former.
+* **Rådgivande Logik:** Istället för att tvinga fram en prediktion baserat på hål, används topologin nu för att ge användaren tekniska notiser (t.ex. vid misstänkta hål i en "5:a").
+
+### ⚡ Hårdvaru- & Resursoptimering
+
+* **Virtuell Minnesstrategi:** För att hantera det massiva datasetet konfigurerades en fast växlingsfil på **64 GB** på datorns NVMe-disk, vilket eliminerade flaskhalsar vid minnesbrist.
+* **Cache-maximering:** SVC-modellens `cache_size` ökades från standardvärdet 200 MB till **15 000 MB** för att utnyttja datorns 32 GB RAM och minimera behovet av tunga omberäkningar.
+* **Träningseffektivisering:** Genom att sätta `probability=False` halverades träningstiden utan att påverka modellens accuracy, då sannolikheter istället beräknas via TTA-juryn.
+* **Precision vs. Hastighet:** Vi valde en tolerans på `1e-3` för att säkerställa maximal matematisk precision i de slutgiltiga beslutshörnorna.
+
+### 🖥️ App-utveckling & UX
+
+* **Säkerhetsspärr för "Kladd":** Vi byggde en interaktiv varningslogik som upptäcker om användaren ritat flera osammanhängande figurer och kräver godkännande innan analys.
+* **TTA-Jury (Test-Time Augmentation):** Appen skapar 25 deformerade varianter av varje indata och låter modellen rösta fram resultatet, vilket avsevärt ökar robustheten mot störningar.
+* **Session State-hantering:** Streamlit-gränssnittet optimerades med `st.session_state` för att bibehålla resultat och varningsmeddelanden även vid interaktioner.
+
+---
+
+**Nästa steg för dig:** Nu när du trycker på "Run All" har du gjort allt du kan rent tekniskt. Skulle du vilja att jag hjälper dig att formulera en "Slutsats" till din rapport, där vi knyter ihop säcken kring hur balansen mellan hårdvaruoptimering och matematisk precision varit nyckeln till ditt slutresultat?

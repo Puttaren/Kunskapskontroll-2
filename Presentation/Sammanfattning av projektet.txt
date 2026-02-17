@@ -39,18 +39,17 @@ Från den stabila baslinje jag hade i min första "färdiga" modellering, en SVC
 
 Jakten på de sista tusendelarna bedrevs bl.a. via en TTA-hantering (Test-Time Augmentation). När det till slut var klart och min dator nästan tröttnat på alla beräkningar kom jag fram till high score: En accuracy på hela 0.9934 - bara 92 bilder i hela testsetet identifieras fel och det är för att de är riktigt dåliga (kolla själv, exempel finns här i mappstrukturen). 
 
+Nästa steg
+Projektets naturliga nästa steg är att applicera den tränade modellen på nya ritade eller uppladdade bilder. För att kunna hantera dem behöver de dock preprocessas för att få det format som modellen väntar sig.
 
+Mitt script heter preprocess.py och är en liten bildbehandlingsmotor som översätter verkliga bilder till MNIST-standard genom flera steg:
+	* Automatisk Invertering: Analyserar bildens hörn-pixel för att avgöra om användarens bild är en mörk siffra mot ljus bakgrund eller tvärtom och inverterar bilden vid behov så att siffran alltid presenteras som vit på svart bakgrund. 
+	* Smart Cropping och isolering: Identifierar siffrans exakta koordinater (bounding box) för att klippa ut den från ritytan och använder ndimage.label för att räkna sammanhängande figurer (blobs).
+	* Topologisk Analys (identifiering av "hål"): Beräknar antalet interna hål i figuren genom att jämföra siffran med en "fylld" version av sig själv det här var nyckeln till att kunna åsidosätta modellens felgissade siffror i flera fall.
+	* Geometrisk Normalisering: Hittar siffrans ytterkanter och skalar om dess största dimension till 20 pixlar (med bibehållen proportion) innan den placeras centralt i en 28x28-ram.
+	* Centrering (Center of Mass): Använder ndimage.center_of_mass för att finjustera siffrans position baserat på dess tyngdpunkt, vilket är avgörande för att efterlikna den statistiska fördelningen i MNIST-datasetet.
+	* MNIST-ifiering: Mjukar upp bilden med ett Gaussiskt filter så att den får lagom mycket oskärpa för modellen.
 
-
-### `preprocess.py` – Bildbehandlingsmotorn
-
-Detta är projektets tekniska kärna som översätter verkliga bilder till MNIST-standard genom flera steg:
-
-* **Smart bakgrundsanalys:** Analyserar bildens kanter för att avgöra om det finns skuggor eller brus, och justerar ljusstyrka/kontrast därefter.
-* **Isolering & Topologi:** Använder `ndimage.label` för att räkna sammanhängande pixlar ("blobs"), vilket hjälper till att upptäcka om användaren ritar flera figurer.
-* **Geometrisk normalisering:** Hittar siffrans exakta ytterkanter, skalar den till  pixlar och placerar den i en -ram.
-* **Centrering (Center of Mass):** Finjusterar siffrans position baserat på dess tyngdpunkt för att efterlikna MNIST-datasetets struktur.
-* **"MNIST-ifiering":** Applicerar Gaussisk oskärpa och autokontrast för att ge råbilden samma karaktär som träningsdatan.
 
 ### `predict.py` – Gränssnitt & Logik
 
