@@ -3,5 +3,6 @@ venv/
 __pycache__/
 *.pyc
 mnist_extratrees_final.joblib
+notebooks/mnist_svc_hog_max.joblib
 *.pkl
 models/
