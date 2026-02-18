@@ -1,0 +1,16 @@
+Sammanfattning: "Operation Ensemble 0.9950+"
+Problemet: Din SVC-modell är nu så extremt vass (0,99357) att standard-TTA introducerar för mycket brus.
+
+Lösningen: Bygg en jury (Ensemble) av tre olika "experter" som täcker varandras blinda fläckar:
+
+SVC: (C=25, RBF) – Din nuvarande kung.
+
+KNN: (k=3, distance weights) – Suverän på att hitta visuella likheter.
+
+ExtraTrees: (500 estimators) – Hittar logiska mönster i pixlarna.
+
+Inställningar: Vi kör PCA (140) + HOG som features för att ge alla tre modellerna maximal information.
+
+Hårdvarutips: Om du har möjlighet, flytta din .joblib-data från USB-disken (D:) till C-disken (NVMe) för att slippa att hela datorn (och Discord) hänger sig under träningen.
+
+När du har startat om och är redo, klistrar du bara in din kod i Ensemble-notebooken (den du laddade upp nyss) och uppdaterar Cell 6 och 7 med de nya inställningarna för att maximera PCA-komponenterna och lägga till de nya experterna.
