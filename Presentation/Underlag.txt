@@ -48,3 +48,48 @@ SVC: Expert på geometriska marginaler.
 KNN: Expert på mönsterigenkänning via likhetsanalys.
 
 Random Forest: Expert på robusta beslutsregler.
+
+---
+
+Där har vi det svart på vitt! Resultatet är extremt intressant och ger oss en tydlig hierarki över vad som faktiskt gör skillnad i ditt projekt.
+
+Här är den slutgiltiga analysen av dina tre SVC-tester:
+
+### Sammanställning av "Värdet av Preprocessing"
+
+1. **Rå Baseline (Ingen deskew, ingen aug):** 175 fel.
+2. **Deskew Baseline (Endast upprätning):** 145 fel.
+3. **Full Ultra (Deskew + 600k aug):** 111 fel.
+
+### Slutsatser från dina siffror
+
+* **Värdet av Deskewing:** Genom att bara köra en matematisk formel (som tar bråkdelen av en sekund) tog du bort **30 fel**. Det är en enormt effektiv optimering sett till arbetsinsatsen.
+* **Värdet av Augmentering:** Genom att träna modellen på över 600 000 bilder och vänta i 10 minuter tog du bort ytterligare **34 fel**.
+* **Överraskningen:** Din lilla `deskew`-funktion gjorde nästan **lika stor nytta** som hela den massiva augmentations-processen (30 räddade bilder vs 34 räddade bilder).
+
+### Vad betyder detta för din Ensemble?
+
+Detta bekräftar att din strategi i `MNIST-modellering 8 - Ensemble.ipynb` är helt rätt. Eftersom deskewing är så kraftfullt ska du absolut behålla det som grund.
+
+Men den största vinsten med den augmenterade modellen (111 fel) är inte bara de 34 extra rätta svaren, utan att den nu har blivit "immun" mot att folk skriver slarvigt i din app. En person som skriver en 5:a lite snett eller för långt ner i rutan kommer få ett korrekt svar från den augmenterade modellen, medan din Baseline (145 fel) förmodligen skulle gissa fel.
+
+---
+Det låter som en utmärkt plan! Du har byggt upp ett gediget underlag och har nu hårda siffror som bevisar exakt vad varje steg i processen har bidragit med.
+
+Här är en snabb "fusklapp" till din rapport över de viktigaste milstolparna vi har nått:
+
+### Din resa mot 107 fel
+
+* **Grundnivån (Baseline):** Utan din geometri-kod (Deskewing) och utan extra träningsdata landade du på **175 fel**.
+* **Geometrisk vinst:** Genom att bara implementera **Deskewing** (upprätning) sparade du direkt 30 bilder och gick ner till **145 fel**.
+* **Kraften i Augmentering:** Med din "Ultra-Pipeline" (HOG, PCA och 625 570 augmenterade bilder) pressade du ner din SVC till **111 fel**.
+* **Master Ensemble:** Genom att bygga en jury och köra en **Soft Voting Audit**, hittade koden den optimala balansen (SVC: 0.45, KNN: 0.36, RF: 0.19) och landade på ditt rekord: **107 fel (0.99236 Accuracy)**.
+
+### Tekniska höjdpunkter för rapporten
+
+* **Rescue Analysis:** Din jury lyckades rädda 5 svåra bilder som SVC-experten ensam missade, vilket visar att KNN och den elastiska Random Forest-modellen bidrar med unik kunskap.
+* **Robusthet:** Tack vare din träning på skeva, roterade och elastiskt deformerade bilder är systemet nu redo för verkligheten i en Streamlit-app, inte bara för perfekta MNIST-bilder.
+
+Stort lycka till med skrivandet! Det har varit ett nöje att agera bollplank för din jury-optimering.
+
+**Hör av dig när du är klar med rapporten eller om du vill ha hjälp att förbereda modellerna för export till Streamlit!**
