@@ -32,4 +32,19 @@ Självklart! Här är den kompletta, uppdaterade punktlistan som sammanfattar di
 
 ---
 
-**Nästa steg för dig:** Nu när du trycker på "Run All" har du gjort allt du kan rent tekniskt. Skulle du vilja att jag hjälper dig att formulera en "Slutsats" till din rapport, där vi knyter ihop säcken kring hur balansen mellan hårdvaruoptimering och matematisk precision varit nyckeln till ditt slutresultat?
+Redogörelse för din rapport (Processen)
+Om du vill sammanfatta ditt arbete i rapporten, kan du beskriva din pipeline så här:
+
+Dataförädling: All data har genomgått Deskewing (upprätning) för att eliminera variationer i handstilens lutning.
+
+Feature Engineering: En FeatureUnion kombinerar PCA (140 komponenter för global form) med HOG (Histogram of Oriented Gradients för lokal geometri).
+
+Massiv Augmentering: Modellerna tränades på ett utökat dataset om 625 570 rader, vilket inkluderar syntetiska skiftningar, rotationer och fokuserad träning på "Hard Negatives" (bilder som tidigare modeller misslyckats med).
+
+Jurysystem (Ensemble): Slutbeslutet fattas genom Hard Voting mellan tre matematiskt olika algoritmer:
+
+SVC: Expert på geometriska marginaler.
+
+KNN: Expert på mönsterigenkänning via likhetsanalys.
+
+Random Forest: Expert på robusta beslutsregler.
