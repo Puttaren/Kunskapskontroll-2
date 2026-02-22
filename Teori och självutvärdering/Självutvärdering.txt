@@ -2,9 +2,8 @@
     Ja, det har varit en utmanande kurs i det att mycket har varit nytt
     och att man behövt hålla reda på många detaljer. 
     
-    Emellanåt har man 
-    blivit frestad att "titta under huven" på de olika funktionerna och 
-    modellerna. 
+    Emellanåt har man blivit frestad att "titta under huven" på de olika 
+    funktionerna och modellerna. 
     
     Det som gett mig mycket har varit scikit-learns utmärkta
     dokumentation på https://scikit-learn.org/ som ett utmärkt komplement
@@ -14,8 +13,10 @@
     Jag har haft VG i alla kurser hittills och även om den här kursen är 
     den första där jag faktiskt känt lite motstånd (det har varit mycket
     läsning i boken, dokumentation online och genomgång av föreläsningar
-    flera gånger) så känner jag mig väl rustad att ta mig an uppgifter av
-    den här typen framöver. 
+    flera gånger samt många och långa timmar med experimenterande) så 
+    känner jag mig väl rustad att ta mig an uppgifter av den här typen 
+    framöver. Jag var lite frestad att göra en chattbot också, men gissar
+    att det är något som kommer i nästa kurs.
     
     Jag har nått kursens alla läranderesultat, jag har en fördjupad förmåga
     att tillämpa Machine Learning och statistiska modeller samt har i båda

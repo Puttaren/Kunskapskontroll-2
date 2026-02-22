@@ -3,7 +3,7 @@ from scipy import ndimage
 from PIL import Image
 
 def center_digit(img_28x28):
-    """Flyttar siffran till mitten av 28x28-rutan baserat på dess masscentrum."""
+    # Flyttar siffran till mitten av 28x28-rutan baserat på dess masscentrum.
     cy, cx = ndimage.center_of_mass(img_28x28)
     if np.isnan(cy) or np.isnan(cx): return img_28x28
     return ndimage.shift(img_28x28, [14 - cy, 14 - cx], mode='constant', cval=0)

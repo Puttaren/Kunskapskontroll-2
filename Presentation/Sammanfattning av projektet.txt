@@ -11,7 +11,7 @@ Hela projektet är nu uppbyggt som en komplett pipeline för maskininlärning, f
 Modellering
 Efter att ha funderat lite på hur jag skulle komma igång så tänkte jag att det bästa måste vara att bygga en stabil bas genom att fokusera på grundflödet i maskininlärning. 
 
-Jag tittade igenom föreläsningarna igen och lät bokens arbetsgång vara stommen för min egen hantering i början. Liksom i boken blev valet en standard-SVC-modell (Support Vector Classifier) och eftersom jag hade "tjuvstartat" så blev den utan någon dimensionsreducering (som vi då inte hade gått igenom än). 
+Jag tittade igenom föreläsningarna igen och lät bokens arbetsgång vara stommen för min egen hantering i början. Bokens Extra Trees hade räckt, men efter lite experimenterande blev valet en standard-SVC-modell (Support Vector Classifier) och eftersom jag hade "tjuvstartat" så blev den utan någon dimensionsreducering (som vi då inte hade gått igenom än). 
 
 För bästa möjliga datahantering normaliserade jag alla pixlar (784 features) genom att helt sonika dela dem med 255.0, vilket undanröjde behovet av StandardScaler.
 
