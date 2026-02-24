@@ -23,6 +23,11 @@
     de kunskapskontroller vi haft uppvisat en förmåga att utveckla en 
     effektiv lösning för BI-relaterade system i relevant programmeringsspråk. 
 
+    Mest för skojs skull erbjuder jag dig att själv titta på min fantastiskt
+    avancerade app för "betygsprediktion". Där finns ett exempelintyg, men 
+    om du vill kan du ladda ned och upp mitt faktiska studieintyg. 
+    Se: https://github.com/Puttaren/betygsprediktion.
+
 3. Något du vill lyfta fram till Terese?
     Det har som sagt varit en ganska tuff kurs, men jag känner att vi har 
     fått närma oss ämnet varsamt och i ett bra tempo, med gott om tid för

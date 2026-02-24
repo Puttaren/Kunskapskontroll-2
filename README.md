@@ -60,10 +60,6 @@ Det blev många notebooks, men det räcker om du kollar notebook 5–7 där den 
 * **Teori.txt**: Svar på teorifrågorna.
 * **Självutvärdering.txt**: Utvärderingen och förslag på betyg.
 
-### 📁 Datainsamling & Felanalys
-* **mnist_errors/**: Träningsbilder som modellen misslyckades med (används för Hard Negative Mining).
-* **collected_data/**: Bilder insamlade via appens feedback-funktion från användare.
-
 ## 🛠 Tekniker & Metoder
 * **SVC (RBF Kernel)**: Den primära expertmodellen med hög precision.
 * **Voting Classifier (Soft Voting)**: Kombinerar sannolikheter från SVC, KNN och RF för stabilitet.

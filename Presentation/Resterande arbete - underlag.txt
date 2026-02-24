@@ -1,0 +1,82 @@
+
+## Sammanfattning av projektets utveckling
+
+### 🧠 Databerikning & Modelloptimering
+
+* **Hard Example Mining:** Vi identifierade och inkluderade specifika bilder som modellen tidigare misslyckats med för att tvinga fram skarpare beslutshörnor.
+* **Domain Adaptation:** Vi integrerade dina egna handritade siffror direkt i träningsdatat för att anpassa modellen efter din specifika handstil.
+* **Super-Ultra Augmentation:** Datasetet skalades upp till över **841 000 rader** genom en kombination av elastisk deformation, rotation, skiftning och zoom.
+* **Standardisering & Whitening:** Vi implementerade `StandardScaler` och PCA `whiten=True` för att centrera datan kring noll, vilket är avgörande för att SVC-algoritmen ska konvergera snabbt och exakt.
+
+### 🛠️ Avancerad Bildbehandling & Topologi
+
+* **Universell Bakgrundshantering:** Systemet analyserar nu automatiskt bildens kanter för att avgöra om det rör sig om en ljus eller mörk bakgrund, vilket gör appen kompatibel med både foton och digitala ritningar.
+* **Robust Håldetektering:** Vi uppgraderade logiken till att räkna hål i *samtliga* detekterade figurer, vilket ger en mer exakt topologisk analys av komplexa former.
+* **Rådgivande Logik:** Istället för att tvinga fram en prediktion baserat på hål, används topologin nu för att ge användaren tekniska notiser (t.ex. vid misstänkta hål i en "5:a").
+
+### ⚡ Hårdvaru- & Resursoptimering
+
+* **Virtuell Minnesstrategi:** För att hantera det massiva datasetet konfigurerades en fast växlingsfil på **64 GB** på datorns NVMe-disk, vilket eliminerade flaskhalsar vid minnesbrist.
+* **Cache-maximering:** SVC-modellens `cache_size` ökades från standardvärdet 200 MB till **15 000 MB** för att utnyttja datorns 32 GB RAM och minimera behovet av tunga omberäkningar.
+* **Träningseffektivisering:** Genom att sätta `probability=False` halverades träningstiden utan att påverka modellens accuracy, då sannolikheter istället beräknas via TTA-juryn.
+* **Precision vs. Hastighet:** Vi valde en tolerans på `1e-3` för att säkerställa maximal matematisk precision i de slutgiltiga beslutshörnorna.
+
+### 🖥️ App-utveckling & UX
+
+* **Säkerhetsspärr för "Kladd":** Vi byggde en interaktiv varningslogik som upptäcker om användaren ritat flera osammanhängande figurer och kräver godkännande innan analys.
+* **TTA-Jury (Test-Time Augmentation):** Appen skapar 25 deformerade varianter av varje indata och låter modellen rösta fram resultatet, vilket avsevärt ökar robustheten mot störningar.
+* **Session State-hantering:** Streamlit-gränssnittet optimerades med `st.session_state` för att bibehålla resultat och varningsmeddelanden även vid interaktioner.
+
+---
+Röd tråd för vidare experiment
+
+Dataförädling: All data har genomgått Deskewing (upprätning) för att eliminera variationer i handstilens lutning.
+
+Feature Engineering: En FeatureUnion kombinerar PCA (140 komponenter för global form) med HOG (Histogram of Oriented Gradients för lokal geometri).
+
+Massiv Augmentering: Modellerna tränades på ett utökat dataset om 625 570 rader, vilket inkluderar syntetiska skiftningar, rotationer och fokuserad träning på "Hard Negatives" (bilder som tidigare modeller misslyckats med).
+
+Jurysystem (Ensemble): Slutbeslutet fattas genom Hard Voting mellan tre matematiskt olika algoritmer:
+
+SVC: Expert på geometriska marginaler.
+
+KNN: Expert på mönsterigenkänning via likhetsanalys.
+
+Random Forest: Expert på robusta beslutsregler.
+
+
+*** Slutgiltig analys av SVC-tester:
+
+### Sammanställning av "Värdet av Preprocessing"
+
+1. **Rå Baseline (Ingen deskew, ingen aug):** 175 fel.
+2. **Deskew Baseline (Endast upprätning):** 145 fel.
+3. **Full Ultra (Deskew + 600k aug):** 111 fel.
+
+### Slutsatser från dina siffror
+
+* **Värdet av Deskewing:** Genom att bara köra en matematisk formel (som tar bråkdelen av en sekund) tog du bort **30 fel**. Det är en enormt effektiv optimering sett till arbetsinsatsen.
+* **Värdet av Augmentering:** Genom att träna modellen på över 600 000 bilder och vänta i 10 minuter tog du bort ytterligare **34 fel**.
+* **Överraskningen:** Din lilla `deskew`-funktion gjorde nästan **lika stor nytta** som hela den massiva augmentations-processen (30 räddade bilder vs 34 räddade bilder).
+
+### Vad betyder detta för din Ensemble?
+
+Detta bekräftar att din strategi i `MNIST-modellering 8 - Ensemble.ipynb` är helt rätt. Eftersom deskewing är så kraftfullt ska du absolut behålla det som grund.
+
+Men den största vinsten med den augmenterade modellen (111 fel) är inte bara de 34 extra rätta svaren, utan att den nu har blivit "immun" mot att folk skriver slarvigt i din app. En person som skriver en 5:a lite snett eller för långt ner i rutan kommer få ett korrekt svar från den augmenterade modellen, medan din Baseline (145 fel) förmodligen skulle gissa fel.
+
+---
+Här är en snabb "fusklapp" till din rapport över de viktigaste milstolparna vi har nått:
+
+### Din resa mot 107 fel
+
+* **Grundnivån (Baseline):** Utan din geometri-kod (Deskewing) och utan extra träningsdata landade du på **175 fel**.
+* **Geometrisk vinst:** Genom att bara implementera **Deskewing** (upprätning) sparade du direkt 30 bilder och gick ner till **145 fel**.
+* **Kraften i Augmentering:** Med din "Ultra-Pipeline" (HOG, PCA och 625 570 augmenterade bilder) pressade du ner din SVC till **111 fel**.
+* **Master Ensemble:** Genom att bygga en jury och köra en **Soft Voting Audit**, hittade koden den optimala balansen (SVC: 0.45, KNN: 0.36, RF: 0.19) och landade på ditt rekord: **107 fel (0.99236 Accuracy)**.
+
+### Tekniska höjdpunkter för rapporten
+
+* **Rescue Analysis:** Din jury lyckades rädda 5 svåra bilder som SVC-experten ensam missade, vilket visar att KNN och den elastiska Random Forest-modellen bidrar med unik kunskap.
+* **Robusthet:** Tack vare din träning på skeva, roterade och elastiskt deformerade bilder är systemet nu redo för verkligheten i en Streamlit-app, inte bara för perfekta MNIST-bilder.
+

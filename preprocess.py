@@ -13,6 +13,11 @@ def preprocess_image(img_input, is_upload=False):
     img = img_input.convert('L')
     img_array = np.array(img).astype(np.float32)
 
+    # Auto-kontrast för hantering av otydliga siffor
+    img_min, img_max = img_array.min(), img_array.max()
+    if img_max > img_min:
+        img_array = (img_array - img_min) * (255.0 / (img_max - img_min))
+
     # Identifiera bakgrunden innan vi börjar modifiera pixlarna
     h, w = img_array.shape
     b = 4
