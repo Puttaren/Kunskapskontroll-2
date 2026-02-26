@@ -1,6 +1,7 @@
 # MNIST Digit Classifier – Från Experiment till Feedback-loop
 
 Detta projekt är en djupdykning i bildklassificering med MNIST-datasetet. Resan går från grundläggande teoretiska experiment till ett avancerat jurysystem (Ensemble) och en produktionssatt applikation med inbyggd feedback-funktion för kontinuerlig förbättring.
+Presentationen kan beskådas här: https://youtu.be/O-3N8rNN_EU
 
 Appen är driftsatt och finns för körning här: [https://puttaren-predict.streamlit.app/](https://puttaren-predict.streamlit.app/)
 
