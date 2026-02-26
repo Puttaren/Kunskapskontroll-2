@@ -8,3 +8,4 @@ notebooks/mnist_svc_hog_max.joblib
 models/
 joblibs/
 presentation/
+storage/
