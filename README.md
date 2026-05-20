@@ -1,9 +1,17 @@
 # MNIST Digit Classifier – Från Experiment till Feedback-loop
 
-Detta projekt är en djupdykning i bildklassificering med MNIST-datasetet. Resan går från grundläggande teoretiska experiment till ett avancerat jurysystem (Ensemble) och en produktionssatt applikation med inbyggd feedback-funktion för kontinuerlig förbättring.
-Presentationen kan beskådas här: https://youtu.be/O-3N8rNN_EU
+Detta projekt är en djupdykning i bildklassificering med MNIST-datasetet. Resan går från grundläggande teoretiska experiment till ett avancerat jurysystem (Ensemble) och en produktionssatt applikation med inbyggd feedback-funktion för kontinuerlig förbättring.  
+* Presentationen kan beskådas här: https://youtu.be/O-3N8rNN_EU  
+* Appen är driftsatt och finns för körning här: [https://puttaren-predict.streamlit.app/](https://puttaren-predict.streamlit.app/)
 
-Appen är driftsatt och finns för körning här: [https://puttaren-predict.streamlit.app/](https://puttaren-predict.streamlit.app/)
+### 🔄 Systemarkitektur & Feedback-loop
+Applikationen använder en inbyggd feedback-loop för att samla in användardata i realtid och hantera svårklassificerade handstilar:
+```text
+[Användare ritar/laddar upp siffra] ──> [preprocess.py (Bildbehandling)] ──> [SVC-Modell (Prediktion)]
+           ▲                                                                    │
+           │                                                                    ▼
+   [Framtida omträning] <── [Bild sparas i logg] <── [Användare klickar: "Felaktig prediktion"]
+```
 
 ## 🧵 Projektets röda tråd
 * **1. Teoretisk grund**: Besvarade de teoretiska frågorna kring ML-koncept och Python-objekt för att säkra grundförståelsen.
@@ -57,13 +65,6 @@ Det blev många notebooks, men det räcker om du kollar notebook 5–7 där den 
 * **preprocess.py**: "Motorn" som sköter bildbehandlingen av ritade/uppladdade bilder.
 * **requirements.txt**: Alla nödvändiga bibliotek för driftsättning.
  
-```text
-[Användare ritar/laddar upp siffra] ──> [preprocess.py (Bildbehandling)] ──> [SVC-Modell (Prediktion)]
-           ▲                                                                    │
-           │                                                                    ▼
-   [Framtida omträning] <── [Bild sparas i logg] <── [Användare klickar: "Felaktig prediktion"]
-```
-
 ### 📝 Teoretiskt ramverk
 * **Teori.txt**: Svar på teorifrågorna.
 * **Självutvärdering.txt**: Projektutvärdering.
