@@ -56,10 +56,13 @@ Det blev många notebooks, men det räcker om du kollar notebook 5–7 där den 
 * **predict.py**: Streamlit-appen med rit-/uppladdningsfunktion och feedback-logik.
 * **preprocess.py**: "Motorn" som sköter bildbehandlingen av ritade/uppladdade bilder.
 * **requirements.txt**: Alla nödvändiga bibliotek för driftsättning.
+ 
+```text
 [Användare ritar/laddar upp siffra] ──> [preprocess.py (Bildbehandling)] ──> [SVC-Modell (Prediktion)]
            ▲                                                                    │
            │                                                                    ▼
    [Framtida omträning] <── [Bild sparas i logg] <── [Användare klickar: "Felaktig prediktion"]
+```
 
 ### 📝 Teoretiskt ramverk
 * **Teori.txt**: Svar på teorifrågorna.
