@@ -56,10 +56,14 @@ Det blev många notebooks, men det räcker om du kollar notebook 5–7 där den 
 * **predict.py**: Streamlit-appen med rit-/uppladdningsfunktion och feedback-logik.
 * **preprocess.py**: "Motorn" som sköter bildbehandlingen av ritade/uppladdade bilder.
 * **requirements.txt**: Alla nödvändiga bibliotek för driftsättning.
+[Användare ritar/laddar upp siffra] ──> [preprocess.py (Bildbehandling)] ──> [SVC-Modell (Prediktion)]
+           ▲                                                                    │
+           │                                                                    ▼
+   [Framtida omträning] <── [Bild sparas i logg] <── [Användare klickar: "Felaktig prediktion"]
 
-### 📝 Teoridelen av kunskapskontroll 2
+### 📝 Teoretiskt ramverk
 * **Teori.txt**: Svar på teorifrågorna.
-* **Självutvärdering.txt**: Utvärderingen och förslag på betyg.
+* **Självutvärdering.txt**: Projektutvärdering.
 
 ## 🛠 Tekniker & Metoder
 * **SVC (RBF Kernel)**: Den primära expertmodellen med hög precision.
